@@ -19,6 +19,11 @@ const pageDetails: Record<string, { title: string; description: string; canonica
     description: 'Try a private sample transcript with heading navigation, a saved place, copy, and text export.',
     canonical: '/?demo=1'
   },
+  '/install': {
+    title: 'Install — Stream Reader Compass',
+    description: 'Download and install the Stream Reader Compass browser extension.',
+    canonical: '/install'
+  },
   '/privacy': {
     title: 'Privacy — Stream Reader Compass',
     description: 'How Stream Reader Compass handles site settings, saved places, and conversation text.',
@@ -88,10 +93,10 @@ function landingPage(): string {
       </section>
 
       <section id="how" class="how" aria-labelledby="how-title">
-        <div class="section-heading"><p class="eyebrow">Three steps</p><h2 id="how-title">Turn a live chat into a reading record</h2></div>
+        <div class="section-heading"><p class="eyebrow">Three steps</p><h2 id="how-title">How to turn a live chat into a transcript</h2></div>
         <ol class="steps">
           <li><span>1</span><div><h3>Enable one site</h3><p>Choose the extension on a chat page. Enable that site only.</p></div></li>
-          <li><span>2</span><div><h3>Open the reader</h3><p>Press Alt+Shift+R. Each visible message gets a heading that stays with that message.</p></div></li>
+          <li><span>2</span><div><h3>Open the reader</h3><p>Select <strong>Open transcript reader</strong>. Each visible message gets a heading that stays with that message.</p></div></li>
           <li><span>3</span><div><h3>Read and act</h3><p>Move by heading, save your place, copy a message, or export the transcript.</p></div></li>
         </ol>
         <aside id="install" class="install-note" aria-labelledby="install-title">
@@ -114,7 +119,7 @@ function landingPage(): string {
 }
 
 function demoPage(): string {
-  return `<div class="demo-banner" role="region" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><span class="demo-exit"><a href="/#install" data-start-real>Exit demo and install extension</a><small>Clears sample data and opens installation steps.</small></span></div></div>
+  return `<div class="demo-banner" role="region" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><span class="demo-exit"><a href="/install" data-route data-start-real>Exit demo and install extension</a><small>Clears sample data and opens installation steps.</small></span></div></div>
     ${header('demo')}
     <main id="main" class="demo-main" tabindex="-1">
       <section class="demo-intro"><p class="eyebrow">Sample support chat · demo</p><h1 tabindex="-1">Read this conversation in order</h1><p>Use headings or the message buttons. New replies never move your focus.</p></section>
@@ -123,8 +128,8 @@ function demoPage(): string {
         <nav class="reader-tools" aria-label="Transcript tools">
           <button class="primary" type="button" data-copy-all>Copy all messages</button>
           <button type="button" data-export>Export text file</button>
-          <button type="button" data-previous>Previous message</button>
-          <button type="button" data-next>Next message</button>
+          <button type="button" data-previous>Go to previous message</button>
+          <button type="button" data-next>Go to next message</button>
           <button type="button" data-add-reply>Add sample reply</button>
           <button type="button" data-pause>Pause updates</button>
         </nav>
@@ -133,6 +138,16 @@ function demoPage(): string {
       </section>
       <aside class="demo-help" aria-labelledby="keys-title"><h2 id="keys-title">Keyboard shortcuts in the reader</h2><p>Press J for the next message. Press K for the previous message. Tab reaches every action.</p></aside>
     </main>${footer()}`;
+}
+
+function installPage(): string {
+  return `${header()}<main id="main" class="legal install-page" tabindex="-1"><p class="eyebrow">Browser extension</p><h1 tabindex="-1">Install the extension</h1>
+    <p class="lede">Download the ZIP, extract it, then load its folder from your browser's extensions page.</p>
+    <a class="button" href="/downloads/stream-reader-compass-chrome.zip" download>Download extension ZIP</a>
+    <h2>Load the extension</h2><ol class="install-steps"><li>Open <code>chrome://extensions</code> or <code>edge://extensions</code>.</li><li>Turn on developer mode.</li><li>Choose <strong>Load unpacked</strong> and select the extracted folder.</li></ol>
+    <h2>Enable one site</h2><p>Open a browser chat, choose Stream Reader Compass, then select <strong>Enable on this site</strong>.</p>
+    <h2>Open the reader</h2><p>Select <strong>Open transcript reader</strong> from the extension popup.</p>
+  </main>${footer()}`;
 }
 
 function privacyPage(): string {
@@ -286,6 +301,7 @@ function render(path = location.pathname): void {
   const route = cleanPath === '/' && new URLSearchParams(location.search).get('demo') === '1' ? '/demo' : cleanPath;
   setMeta(route);
   if (route === '/demo') app.innerHTML = demoPage();
+  else if (cleanPath === '/install') app.innerHTML = installPage();
   else if (cleanPath === '/privacy') app.innerHTML = privacyPage();
   else if (cleanPath === '/terms') app.innerHTML = termsPage();
   else if (cleanPath === '/') app.innerHTML = landingPage();

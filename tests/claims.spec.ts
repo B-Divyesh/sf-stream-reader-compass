@@ -96,7 +96,7 @@ test('demo announces a new reply without moving focus', async ({ page }) => {
   await expect(page.locator('.demo-message')).toHaveCount(5);
 });
 
-test('@claim:pause-updates keeps the transcript fixed until updates resume', async ({ page }) => {
+test('demo keeps the transcript fixed until updates resume', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Pause updates' }).click();
   await page.getByRole('button', { name: 'Add sample reply' }).click();

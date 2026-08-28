@@ -53,7 +53,7 @@
     "claim": "Pauses transcript updates until you resume them.",
     "where": "reader toolbar",
     "test": "npm test -- --grep @claim:pause-updates",
-    "sandbox": "fresh browser context; pause; reject a sample reply; resume; add the reply"
+    "sandbox": "fresh browser extension profile; pause and close the packaged reader; reopen; assert active state and receive a new source message"
   },
   {
     "id": "demo-reset",
@@ -113,7 +113,7 @@
   },
   {
     "id": "site-self-contained",
-    "claim": "The site uses no runtime dependencies or third-party CDN files.",
+    "claim": "The website loads scripts, styles, and fonts only from its own domain.",
     "where": "README Develop",
     "test": "npm test -- --grep @claim:site-self-contained",
     "sandbox": "fresh browser context; load landing and one-click demo; record requests; assert every request is same-origin and every script, stylesheet, and font URL is self-hosted"

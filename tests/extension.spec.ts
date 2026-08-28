@@ -1,7 +1,11 @@
 import { chromium, expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { cp, readFile, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
 import path from 'node:path';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 async function fixtureExtensionPath(outputPath: (name: string) => string): Promise<string> {
   const shippedPath = path.resolve('.output/chrome-mv3');
@@ -84,7 +88,7 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   }
 });
 
-test('@claim:local-processing @claim:message-headings @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
+test('@claim:local-processing @claim:message-headings @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:pause-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
   const extensionPath = await fixtureExtensionPath(testInfo.outputPath.bind(testInfo));
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
     headless: false,
@@ -209,8 +213,51 @@ test('@claim:local-processing @claim:message-headings @claim:text-export @claim:
       return saved.classList.contains('saved') && saved.contains(root.activeElement);
     });
     expect(reopened).toBe(true);
+
+    await reader.evaluate((host) => (host.shadowRoot!.querySelector('[data-action="pause"]') as HTMLButtonElement).click());
+    await expect.poll(() => reader.evaluate((host) => host.shadowRoot!.querySelector('[data-action="pause"]')?.textContent)).toBe('Resume updates');
+    await reader.evaluate((host) => (host.shadowRoot!.querySelector('button.close') as HTMLButtonElement).click());
+    await expect(reader).toHaveCount(0);
+    expect(await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
+    await expect(reader).toHaveCount(1);
+    expect(await reader.evaluate((host) => host.shadowRoot!.querySelector('[data-action="pause"]')?.textContent)).toBe('Pause updates');
+    await page.evaluate(() => {
+      document.querySelector('main')!.insertAdjacentHTML('beforeend', '<article data-message-author-role="assistant"><p>Reply after reopening</p></article>');
+    });
+    await expect.poll(() => reader.evaluate((host) => host.shadowRoot!.querySelectorAll('article').length)).toBe(6);
+    expect(await reader.evaluate((host) => host.shadowRoot!.querySelector('.notice')?.textContent)).toContain('1 new message added');
     expect(offOriginRequests).toEqual([]);
   } finally {
     await context.close();
   }
+});
+
+test('the documented ZIP loads in the pinned Chromium browser', async ({}, testInfo) => {
+  const zipPath = path.resolve('site/public/downloads/stream-reader-compass-chrome.zip');
+  const extractedPath = testInfo.outputPath('packaged-extension');
+  await execFileAsync('unzip', ['-q', zipPath, '-d', extractedPath]);
+  const packagedManifest = JSON.parse(await readFile(path.join(extractedPath, 'manifest.json'), 'utf8'));
+  expect(packagedManifest.manifest_version).toBe(3);
+  expect(packagedManifest.commands['open-reader'].suggested_key.default).toBe('Alt+Shift+R');
+
+  const packageContext = await chromium.launchPersistentContext(testInfo.outputPath('package-profile'), {
+    headless: false,
+    args: [
+      '--headless=new',
+      `--disable-extensions-except=${extractedPath}`,
+      `--load-extension=${extractedPath}`
+    ]
+  });
+  try {
+    let packagedWorker = packageContext.serviceWorkers()[0];
+    if (!packagedWorker) packagedWorker = await packageContext.waitForEvent('serviceworker');
+    const extensionId = new URL(packagedWorker.url()).hostname;
+    const popup = await packageContext.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await expect(popup.getByRole('heading', { level: 1 })).toHaveText('Read this chat in order');
+    await expect(popup).toHaveTitle('Reader controls — Stream Reader Compass');
+  } finally {
+    await packageContext.close();
+  }
+
 });

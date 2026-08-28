@@ -137,12 +137,13 @@ function refresh(root: ShadowRoot, announce = true): void {
 async function openReader(): Promise<{ ok: boolean; error?: string }> {
   if (!(await isEnabled())) return { ok: false, error: 'Enable the reader for this site first.' };
   if (document.getElementById(HOST_ID)) return { ok: true };
+  paused = false;
   messages = extractTranscript(document);
   const host = document.createElement('div');
   const previousFocus = document.activeElement as HTMLElement | null;
   host.id = HOST_ID;
   const shadow = host.attachShadow({ mode: 'open' });
-  shadow.innerHTML = `<style>${makeStyles()}</style><div class="backdrop"></div><section class="reader" role="dialog" aria-modal="true" aria-labelledby="src-title"><header class="masthead"><div><p class="kicker">Local transcript · ${escapeHtml(location.hostname)}</p><h1 id="src-title" tabindex="-1">Conversation reader</h1></div><button class="close" type="button" aria-label="Close transcript reader">Close</button></header><nav class="toolbar" aria-label="Transcript tools"><button class="primary" data-action="copy-all" type="button">Copy all messages</button><button data-action="export" type="button">Export text file</button><button data-action="previous" type="button">Previous message</button><button data-action="next" type="button">Next message</button><button data-action="refresh" type="button">Check for new messages</button><button data-action="pause" type="button">Pause updates</button></nav><p class="notice" role="status" aria-live="polite">${messages.length ? `${messages.length} messages ready.` : 'No messages found yet.'}</p><main class="messages"></main></section>`;
+  shadow.innerHTML = `<style>${makeStyles()}</style><div class="backdrop"></div><section class="reader" role="dialog" aria-modal="true" aria-labelledby="src-title"><header class="masthead"><div><p class="kicker">Local transcript · ${escapeHtml(location.hostname)}</p><h1 id="src-title" tabindex="-1">Conversation reader</h1></div><button class="close" type="button" aria-label="Close transcript reader">Close</button></header><nav class="toolbar" aria-label="Transcript tools"><button class="primary" data-action="copy-all" type="button">Copy all messages</button><button data-action="export" type="button">Export text file</button><button data-action="previous" type="button">Go to previous message</button><button data-action="next" type="button">Go to next message</button><button data-action="refresh" type="button">Check for new messages</button><button data-action="pause" type="button">Pause updates</button></nav><p class="notice" role="status" aria-live="polite">${messages.length ? `${messages.length} messages ready.` : 'No messages found yet.'}</p><main class="messages"></main></section>`;
   document.documentElement.append(host);
   const priorOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = 'hidden';
@@ -161,6 +162,7 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
   }
 
   const close = () => {
+    paused = false;
     observer?.disconnect();
     observer = null;
     clearTimeout(refreshTimer);

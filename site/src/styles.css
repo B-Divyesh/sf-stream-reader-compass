@@ -112,6 +112,10 @@ h2 { margin: 0; max-width: 20ch; font: 700 clamp(36px,5vw,64px)/.98 Georgia,Camb
 .legal p { max-width: 68ch; }
 .legal .lede { font-size: 21px; }
 .legal code { padding: 2px 5px; background: var(--raised); border: 1px solid var(--rule); }
+.legal kbd { padding: 2px 5px; background: var(--raised); border: 1px solid var(--rule); font: 700 14px/1.4 ui-monospace,monospace; }
+.install-page .button { margin: 8px 0 16px; }
+.install-steps { max-width: 68ch; padding-left: 24px; }
+.install-steps li { margin: 12px 0; padding-left: 8px; }
 .not-found { min-height: 70vh; }
 .not-found .button { margin-top: 24px; }
 @keyframes press-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }

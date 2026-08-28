@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-for (const route of ['/', '/?demo=1', '/demo', '/privacy', '/terms', '/missing-page', '/404.html']) {
+for (const route of ['/', '/?demo=1', '/demo', '/install', '/privacy', '/terms', '/missing-page', '/404.html']) {
   test(`${route} has one h1, landmarks, and no serious accessibility issues`, async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
@@ -58,6 +58,22 @@ test('route navigation moves focus to the new page heading', async ({ page }) =>
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
 });
 
+test('exiting the demo and going Back both move focus to the route heading', async ({ page }) => {
+  await page.goto('/?demo=1');
+  await page.evaluate(() => {
+    localStorage.setItem('demo:resume', 'sample-2');
+    localStorage.setItem('real:untouched', 'keep');
+  });
+  await page.getByRole('link', { name: 'Exit demo and install extension' }).click();
+  await expect(page).toHaveURL('/install');
+  await expect(page.getByRole('heading', { level: 1, name: 'Install the extension' })).toBeFocused();
+  expect(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)))).toEqual({ 'real:untouched': 'keep' });
+  await page.goBack();
+  await expect(page).toHaveURL('/?demo=1');
+  await expect(page.getByRole('heading', { level: 1, name: 'Read this conversation in order' })).toBeFocused();
+  await expect(page.locator('.demo-message')).toHaveCount(4);
+});
+
 test('the first screen states the job, audience, action, outcome, and three facts', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
@@ -80,7 +96,7 @@ test('skip link moves keyboard focus to the main landmark', async ({ page }) => 
 });
 
 test('visible controls meet the 44px touch-target baseline', async ({ page }) => {
-  for (const route of ['/', '/demo', '/privacy', '/terms']) {
+  for (const route of ['/', '/demo', '/install', '/privacy', '/terms']) {
     await page.goto(route);
     const undersized = await page.locator('a[href], button').evaluateAll((controls) => controls
       .filter((control) => {
@@ -109,6 +125,7 @@ test('every route sets its own title, canonical URL, and social metadata', async
   const routes: Array<[string, string, string]> = [
     ['/', 'Stream Reader Compass — Read streaming chats', '/'],
     ['/?demo=1', 'Demo — Stream Reader Compass', '/?demo=1'],
+    ['/install', 'Install — Stream Reader Compass', '/install'],
     ['/privacy', 'Privacy — Stream Reader Compass', '/privacy'],
     ['/terms', 'Terms — Stream Reader Compass', '/terms'],
     ['/missing-page', 'Page not found — Stream Reader Compass', '/404']
@@ -122,8 +139,8 @@ test('every route sets its own title, canonical URL, and social metadata', async
   }
 });
 
-test('legal routes and the static 404 keep the complete site navigation', async ({ page }) => {
-  for (const route of ['/privacy', '/terms', '/404.html']) {
+test('install, legal, and static 404 routes keep the complete site navigation', async ({ page }) => {
+  for (const route of ['/install', '/privacy', '/terms', '/404.html']) {
     await page.goto(route);
     await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link').allTextContents()).resolves.toEqual(['Demo', 'How it works', 'Privacy']);
     await expect(page.getByRole('navigation', { name: 'Footer navigation' }).getByRole('link', { name: 'Privacy' })).toBeVisible();
