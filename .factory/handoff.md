@@ -39,7 +39,7 @@ npm audit --audit-level=high
 
 ## Deploy
 
-Deploy `dist/site/` as the static-site artifact. The packaged extension is linked at `dist/site/downloads/stream-reader-compass-chrome.zip`.
+The repair commit `b5a5d2ef164230aad91db319856091ff343f96b5` was pushed to `origin/main`. The static deployment command was attempted with the supplied static artifact and the authenticated Azure subscription, but no matching Static Web App resource/configuration was available under the supplied product slug. The public hostname still serves the prior artifact (last modified 2026-08-28 17:03 UTC), so this handoff does not claim a live deployment. The factory deployment target must be provisioned or supplied before `dist/site/` can be published there. The packaged extension is linked at `dist/site/downloads/stream-reader-compass-chrome.zip`.
 
 ## Known limits
 
