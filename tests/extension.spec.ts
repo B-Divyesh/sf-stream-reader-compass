@@ -128,19 +128,19 @@ test('@claim:site-disable-removes-access disables a site through the popup and r
     const extensionId = new URL(worker.url()).hostname;
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:4173/?demo=1');
-    await page.bringToFront();
-    const tabId = await worker.evaluate(async () => {
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      return tabs[0]!.id!;
-    });
     const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    const tabId = await popup.evaluate(async () => {
+      const tabs = await chrome.tabs.query({});
+      return tabs.find((tab) => tab.url?.startsWith('http://127.0.0.1:4173/'))!.id!;
+    });
     await popup.addInitScript(({ fixtureTabId, fixtureUrl }) => {
       const query = chrome.tabs.query.bind(chrome.tabs);
       chrome.tabs.query = (queryInfo) => queryInfo.active && queryInfo.currentWindow
         ? Promise.resolve([{ id: fixtureTabId, url: fixtureUrl } as chrome.tabs.Tab])
         : query(queryInfo);
     }, { fixtureTabId: tabId, fixtureUrl: 'http://127.0.0.1:4173/?demo=1' });
-    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popup.reload();
     await expect(popup.locator('#site')).toHaveText('127.0.0.1');
     await expect(popup.locator('#enable')).toHaveText('Enable on this site');
     await expect(popup.locator('#open')).toBeHidden();
@@ -150,25 +150,25 @@ test('@claim:site-disable-removes-access disables a site through the popup and r
     await expect(popup.locator('#open')).toBeVisible();
 
     const pattern = 'http://127.0.0.1:4173/*';
-    expect(await worker.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(true);
-    expect(await worker.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({
+    expect(await popup.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(true);
+    expect(await popup.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({
       enabledOrigins: ['http://127.0.0.1:4173']
     });
 
-    await worker.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
-    expect(await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
+    await popup.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
+    expect(await popup.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
 
     await expect(popup.locator('#enable')).toHaveText('Disable on this site');
     await popup.locator('#enable').click();
     await expect(popup.locator('#status')).toHaveText('Reader disabled and site access removed.');
     await expect(popup.locator('#enable')).toHaveText('Enable on this site');
-    expect(await worker.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({ enabledOrigins: [] });
-    expect(await worker.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(false);
+    expect(await popup.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({ enabledOrigins: [] });
+    expect(await popup.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(false);
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(0);
 
     await page.reload();
-    const injectionAllowed = await worker.evaluate(async (id) => {
+    const injectionAllowed = await popup.evaluate(async (id) => {
       try {
         await chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] });
         return true;
