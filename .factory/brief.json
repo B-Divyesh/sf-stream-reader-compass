@@ -1,0 +1,10 @@
+{
+  "slug": "stream-reader-compass",
+  "title": "Stream Reader Compass",
+  "summary": "Read streaming chats without losing your place",
+  "artifact_class": "browser-extension",
+  "user": "Screen-reader users working with long, streaming AI or support chats who need to read, copy, and act on a conversation without focus loss.",
+  "smallest_useful_product": "A browser extension that, on user command, creates a local semantic transcript with message headings, stable anchors, copy/export, link buttons, and polite update cues.",
+  "monetization": "free",
+  "constraints": "Process page content locally; require an explicit per-site enablement; respect CSP and browser-extension permissions; no telemetry of conversation text."
+}
