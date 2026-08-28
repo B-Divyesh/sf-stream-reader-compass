@@ -1,0 +1,10 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node", "chrome"]
+  },
+  "include": [".wxt/wxt.d.ts", "entrypoints", "shared", "site", "tests", "wxt.config.ts", "scripts"]
+}
