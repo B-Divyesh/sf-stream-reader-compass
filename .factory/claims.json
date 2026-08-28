@@ -1,0 +1,51 @@
+[
+  {
+    "id": "local-processing",
+    "claim": "Conversation text stays in your browser.",
+    "where": "landing facts, privacy notice",
+    "test": "npm test -- --grep @claim:local-processing",
+    "sandbox": "fresh browser context; demo flow; assert every network request is same-origin"
+  },
+  {
+    "id": "semantic-record",
+    "claim": "Each visible message gets a heading and stable anchor.",
+    "where": "how it works, extension reader",
+    "test": "npm test -- --grep @claim:semantic-record",
+    "sandbox": "fresh browser context; demo data; assert one named heading and id per message"
+  },
+  {
+    "id": "text-export",
+    "claim": "Exports the transcript as a text file.",
+    "where": "landing and reader toolbar",
+    "test": "npm test -- --grep @claim:text-export",
+    "sandbox": "fresh browser context; demo data; inspect downloaded file for all four messages and a link URL"
+  },
+  {
+    "id": "resume-marker",
+    "claim": "Returns to your saved message.",
+    "where": "landing preview and reader",
+    "test": "npm test -- --grep @claim:resume-marker",
+    "sandbox": "fresh browser context; save sample message three; reload; assert focus and marker"
+  },
+  {
+    "id": "polite-updates",
+    "claim": "New replies never move your focus.",
+    "where": "demo introduction and extension reader",
+    "test": "npm test -- --grep @claim:polite-updates",
+    "sandbox": "fresh browser context; focus Add sample reply; add reply; assert focus remains and polite status changes"
+  },
+  {
+    "id": "no-account-free",
+    "claim": "No account is needed. Free to use.",
+    "where": "landing facts",
+    "test": "npm test -- --grep @claim:no-account-free",
+    "sandbox": "fresh browser context; open complete demo without an account field; assert free copy"
+  },
+  {
+    "id": "site-consent",
+    "claim": "The extension reads a site only after you enable it.",
+    "where": "how it works, privacy notice",
+    "test": "npm test -- --grep @claim:site-consent",
+    "sandbox": "fresh browser extension profile; assert open is rejected with no enabled origin, then enable the test origin and assert four message headings"
+  }
+]
