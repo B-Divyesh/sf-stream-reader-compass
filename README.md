@@ -31,6 +31,8 @@ npm install
 npm run dev             # landing site on localhost
 npm run dev:extension   # WXT extension development
 npm test                # Playwright claims and accessibility checks
+npm run test:unit       # focused TypeScript unit checks
+npm run lint            # TypeScript lint/type check
 npm run build           # extension, ZIP, and static site
 ```
 
@@ -41,10 +43,6 @@ The exact production command is `npm run build`. It creates:
 - `dist/site/downloads/stream-reader-compass-chrome.zip` — packaged extension
 
 The site uses no runtime dependencies or third-party CDN files. The generated hero source and prompt are in `assets/src/`.
-
-## How message detection works
-
-The content script checks common semantic message containers, including `data-message-author-role`, conversation-turn test IDs, main-region articles, and `.message`. It reads only visible DOM text after the current site origin appears in the enabled-site list. If a site uses another structure, the reader shows a clear empty state.
 
 ## Privacy and limits
 

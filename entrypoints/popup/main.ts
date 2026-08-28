@@ -15,8 +15,8 @@ async function currentOrigins(): Promise<string[]> {
 
 async function refresh(): Promise<void> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  tabId = tab.id;
-  origin = tab.url ? safeOrigin(tab.url) : null;
+  tabId = tab?.id;
+  origin = tab?.url ? safeOrigin(tab.url) : null;
   if (!origin) {
     siteText.textContent = 'Open a web chat to use the reader.';
     enableButton.hidden = true;

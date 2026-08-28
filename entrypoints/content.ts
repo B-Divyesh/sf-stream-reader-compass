@@ -5,6 +5,7 @@ let messages: TranscriptMessage[] = [];
 let paused = false;
 let observer: MutationObserver | null = null;
 let refreshTimer = 0;
+let currentResumeId: string | undefined;
 
 function pageKey(): string {
   return `resume:${location.origin}${location.pathname}`;
@@ -64,16 +65,35 @@ function renderMessages(root: ShadowRoot, resumeId?: string): void {
     return;
   }
   container.innerHTML = messages.map((message, index) => `
-    <article id="src-${message.id}" class="${resumeId === message.id ? 'saved' : ''}">
+    <article id="src-${message.id}" data-message-id="${message.id}" class="${resumeId === message.id ? 'saved' : ''}">
       <span class="folio" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>
-      <h2 tabindex="-1">${escapeHtml(message.speaker)} <span class="help">— message ${index + 1} of ${messages.length}</span></h2>
+      <h2 tabindex="-1" data-focus-key="heading">${escapeHtml(message.speaker)} <span class="help">— message ${index + 1} of ${messages.length}</span></h2>
       <div class="body">${escapeHtml(message.text)}</div>
-      ${message.links.length ? `<h3>Links in this message</h3><ul class="links">${message.links.map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)} <span class="help">(opens in a new tab)</span></a></li>`).join('')}</ul>` : ''}
+      ${message.links.length ? `<h3>Links in this message</h3><ul class="links">${message.links.map((link, linkIndex) => `<li><a data-focus-key="link-${linkIndex}" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)} <span class="help">(opens in a new tab)</span></a></li>`).join('')}</ul>` : ''}
       <div class="actions">
-        <button type="button" data-copy="${message.id}">Copy this message</button>
-        <button type="button" data-resume="${message.id}">Save my place here</button>
+        <button type="button" data-focus-key="copy" data-copy="${message.id}">Copy this message</button>
+        <button type="button" data-focus-key="resume" data-resume="${message.id}">Save my place here</button>
       </div>
     </article>`).join('');
+}
+
+type MessageFocus = { messageId: string; key: string };
+
+function captureMessageFocus(root: ShadowRoot): MessageFocus | undefined {
+  const active = root.activeElement as HTMLElement | null;
+  const article = active?.closest<HTMLElement>('article[data-message-id]');
+  const key = active?.dataset.focusKey;
+  if (!article || !key) return undefined;
+  return { messageId: article.dataset.messageId!, key };
+}
+
+function restoreMessageFocus(root: ShadowRoot, focus: MessageFocus | undefined): boolean {
+  if (!focus) return false;
+  const article = Array.from(root.querySelectorAll<HTMLElement>('article[data-message-id]'))
+    .find((item) => item.dataset.messageId === focus.messageId);
+  const target = article?.querySelector<HTMLElement>(`[data-focus-key="${focus.key}"]`);
+  target?.focus();
+  return root.activeElement === target;
 }
 
 async function copyText(text: string, status: HTMLElement, success: string): Promise<void> {
@@ -96,16 +116,18 @@ function downloadTranscript(status: HTMLElement): void {
   status.textContent = `Exported ${messages.length} messages as a text file.`;
 }
 
-async function refresh(root: ShadowRoot, announce = true): Promise<void> {
+function refresh(root: ShadowRoot, announce = true): void {
+  const activeBefore = root.activeElement;
+  const focus = captureMessageFocus(root);
   const next = extractTranscript(document);
   const previousCount = messages.length;
   messages = next;
-  const stored = await chrome.storage.local.get(pageKey());
-  renderMessages(root, stored[pageKey()]);
+  renderMessages(root, currentResumeId);
+  const focusStayed = focus ? restoreMessageFocus(root, focus) : root.activeElement === activeBefore;
   if (announce) {
     const status = root.querySelector<HTMLElement>('.notice')!;
     status.textContent = next.length > previousCount
-      ? `${next.length - previousCount} new ${next.length - previousCount === 1 ? 'message' : 'messages'} added. Your focus stayed in place.`
+      ? `${next.length - previousCount} new ${next.length - previousCount === 1 ? 'message' : 'messages'} added.${focusStayed ? ' Your focus stayed in place.' : ''}`
       : `Transcript checked. ${next.length} ${next.length === 1 ? 'message' : 'messages'} available.`;
   }
 }
@@ -123,12 +145,12 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
   const priorOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = 'hidden';
   const stored = await chrome.storage.local.get(pageKey());
-  const resumeId = stored[pageKey()] as string | undefined;
-  renderMessages(shadow, resumeId);
+  currentResumeId = stored[pageKey()] as string | undefined;
+  renderMessages(shadow, currentResumeId);
   const title = shadow.querySelector<HTMLElement>('#src-title')!;
   title.focus();
-  if (resumeId) {
-    const resumeHeading = shadow.querySelector<HTMLElement>(`#src-${resumeId} h2`);
+  if (currentResumeId) {
+    const resumeHeading = shadow.querySelector<HTMLElement>(`#src-${currentResumeId} h2`);
     if (resumeHeading) {
       resumeHeading.scrollIntoView({ block: 'center' });
       resumeHeading.focus();
@@ -159,6 +181,7 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
     const resumeId = button.dataset.resume;
     if (resumeId) {
       await chrome.storage.local.set({ [pageKey()]: resumeId });
+      currentResumeId = resumeId;
       renderMessages(shadow, resumeId);
       shadow.querySelector<HTMLElement>(`#src-${resumeId} h2`)?.focus();
       status.textContent = 'Place saved on this device.';
@@ -167,7 +190,7 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
     switch (button.dataset.action) {
       case 'copy-all': await copyText(transcriptToText(messages), status, 'All messages copied.'); break;
       case 'export': downloadTranscript(status); break;
-      case 'refresh': await refresh(shadow); break;
+      case 'refresh': refresh(shadow); break;
       case 'pause':
         paused = !paused;
         button.textContent = paused ? 'Resume updates' : 'Pause updates';
@@ -190,7 +213,10 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
     const keyEvent = event as KeyboardEvent;
     if (keyEvent.key === 'Escape') close();
     if (keyEvent.key === 'Tab') {
-      const focusable = Array.from(shadow.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'));
+      const focusable = [
+        shadow.querySelector<HTMLElement>('#src-title')!,
+        ...Array.from(shadow.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'))
+      ];
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (keyEvent.shiftKey && shadow.activeElement === first) {

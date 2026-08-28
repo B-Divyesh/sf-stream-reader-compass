@@ -82,5 +82,19 @@
     "where": "landing boundaries, privacy notice, README",
     "test": "npm test -- --grep @claim:no-transcript-storage",
     "sandbox": "fresh browser extension profile; open a real four-message reader; inspect all local and sync extension storage for sample text"
+  },
+  {
+    "id": "no-remote-services",
+    "claim": "The extension uses no analytics, models, or remote APIs.",
+    "where": "README, privacy notice",
+    "test": "npm test -- --grep @claim:no-remote-services",
+    "sandbox": "fresh browser extension profile; use the reader on fixture messages and observe that the reader makes no network request"
+  },
+  {
+    "id": "escape-close",
+    "claim": "Escape closes the transcript reader.",
+    "where": "README",
+    "test": "npm test -- --grep @claim:escape-close",
+    "sandbox": "fresh browser extension profile; open the reader, press Escape, and assert the reader host is removed"
   }
 ]

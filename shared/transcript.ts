@@ -16,6 +16,56 @@ const SELECTORS = [
   '.message'
 ];
 
+const ANCHOR_ATTRIBUTE = 'data-stream-reader-compass-anchor';
+const FINGERPRINT_ATTRIBUTE = 'data-stream-reader-compass-fingerprint';
+const EXCLUDED_CONTENT = 'script, style, template, noscript, button, input, select, textarea, [role="button"], [aria-hidden="true"], [data-stream-reader-compass-ui], [data-transcript-chrome], .folio, .actions, .message-actions, .marker-label';
+
+function hash(value: string): string {
+  let result = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    result ^= value.charCodeAt(index);
+    result = Math.imul(result, 16777619);
+  }
+  return (result >>> 0).toString(36);
+}
+
+function isRendered(element: Element): boolean {
+  const view = element.ownerDocument.defaultView;
+  if (!view) return true;
+  for (let current: Element | null = element; current; current = current.parentElement) {
+    const style = view.getComputedStyle(current);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse' || style.contentVisibility === 'hidden') return false;
+  }
+  return true;
+}
+
+function visibleText(element: Element): string {
+  const parts: string[] = [];
+  const walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const parent = node.parentElement;
+    if (parent && isRendered(parent) && !parent.closest(EXCLUDED_CONTENT)) parts.push(node.textContent || '');
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function messageId(element: Element, fingerprint: string, duplicate: number): string {
+  const existing = element.getAttribute(ANCHOR_ATTRIBUTE);
+  const fingerprintHash = hash(fingerprint);
+  const sourceIdentity = element.getAttribute('data-message-id')
+    || element.getAttribute('data-id')
+    || element.getAttribute('data-testid')
+    || element.id;
+  if (existing && (sourceIdentity || element.getAttribute(FINGERPRINT_ATTRIBUTE) === fingerprintHash)) return existing;
+  const identity = sourceIdentity ? `source:${sourceIdentity}` : `content:${fingerprint}:${duplicate}`;
+  const id = existing ? `message-${hash(`replacement:${existing}:${fingerprint}`)}` : `message-${hash(identity)}`;
+  // The attribute gives otherwise anonymous DOM nodes a stable identity while the page is
+  // streaming. Explicit message IDs keep the same identifier after a full page reload.
+  element.setAttribute(ANCHOR_ATTRIBUTE, id);
+  element.setAttribute(FINGERPRINT_ATTRIBUTE, fingerprintHash);
+  return id;
+}
+
 function speakerFor(element: Element, index: number): string {
   const explicit = element.getAttribute('data-message-author-role')
     || element.getAttribute('data-author')
@@ -37,22 +87,25 @@ export function extractTranscript(root: ParentNode = document): TranscriptMessag
     }
   }
 
-  const seen = new Set<string>();
+  const duplicates = new Map<string, number>();
   return elements.flatMap((element, index) => {
-    const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!isRendered(element)) return [];
+    const text = visibleText(element);
     if (text.length < 2 || text.length > 100_000) return [];
-    const signature = text.slice(0, 500);
-    if (seen.has(signature)) return [];
-    seen.add(signature);
+    const speaker = speakerFor(element, index);
     const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('a[href]'))
+      .filter((link) => isRendered(link) && !link.closest(EXCLUDED_CONTENT))
       .map((link) => ({
         label: (link.textContent || link.getAttribute('aria-label') || 'Open link').trim(),
         url: link.href
       }))
       .filter((link, linkIndex, all) => /^(https?|mailto):/.test(link.url) && all.findIndex((other) => other.url === link.url) === linkIndex);
+    const fingerprint = `${speaker}\n${text.slice(0, 2_000)}\n${links.map((link) => link.url).join('\n')}`;
+    const duplicate = (duplicates.get(fingerprint) || 0) + 1;
+    duplicates.set(fingerprint, duplicate);
     return [{
-      id: `message-${index + 1}`,
-      speaker: speakerFor(element, index),
+      id: messageId(element, fingerprint, duplicate),
+      speaker,
       text,
       links
     }];

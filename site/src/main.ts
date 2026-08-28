@@ -30,7 +30,7 @@ const pageDetails: Record<string, { title: string; description: string }> = {
 };
 
 function setMeta(path: string): void {
-  const details = pageDetails[path] || pageDetails['/404'];
+  const details = pageDetails[path] || pageDetails['/404']!;
   document.title = details.title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = details.description;
   document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://stream-reader-compass.sociobot.in${path}`;
@@ -38,7 +38,7 @@ function setMeta(path: string): void {
 
 function landingPage(): string {
   return `${header()}
-    <main id="main">
+    <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow">A steadier browser chat reader</p>
@@ -102,7 +102,7 @@ function landingPage(): string {
 function demoPage(): string {
   return `<div class="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><a href="/#install" data-start-real>Start for real</a></div></div>
     ${header('demo')}
-    <main id="main" class="demo-main">
+    <main id="main" class="demo-main" tabindex="-1">
       <section class="demo-intro"><p class="eyebrow">Sample support chat · local sandbox</p><h1 tabindex="-1">Read this conversation in order</h1><p>Use headings or the message buttons. New replies never move your focus.</p></section>
       <section class="reader-app" aria-labelledby="reader-title">
         <header class="reader-masthead"><div><p class="eyebrow">The daily transcript · sample edition</p><h2 id="reader-title">Checkout keyboard support</h2></div><p id="message-count" class="edition-count"></p></header>
@@ -122,7 +122,7 @@ function demoPage(): string {
 }
 
 function privacyPage(): string {
-  return `${header('privacy')}<main id="main" class="legal"><p class="eyebrow">Privacy notice · effective 28 August 2026</p><h1 tabindex="-1">Your conversation stays in your browser</h1>
+  return `${header('privacy')}<main id="main" class="legal" tabindex="-1"><p class="eyebrow">Privacy notice · effective 28 August 2026</p><h1 tabindex="-1">Your conversation stays in your browser</h1>
     <p class="lede">Stream Reader Compass processes visible page content on your device. It does not send conversation text to us.</p>
     <h2>What the extension reads</h2><p>After you enable a site and open the reader, the extension reads visible message text and links from that page. It uses them to make the transcript you see.</p>
     <h2>What the extension stores</h2><p>Your browser stores the list of enabled site origins in extension sync storage. It stores one message identifier per page when you save your place. Transcript text is not stored.</p>
@@ -134,7 +134,7 @@ function privacyPage(): string {
 }
 
 function termsPage(): string {
-  return `${header()}<main id="main" class="legal"><p class="eyebrow">Terms · effective 28 August 2026</p><h1 tabindex="-1">Use the reader as a local aid</h1>
+  return `${header()}<main id="main" class="legal" tabindex="-1"><p class="eyebrow">Terms · effective 28 August 2026</p><h1 tabindex="-1">Use the reader as a local aid</h1>
     <p class="lede">Stream Reader Compass is free software that restructures visible page content for reading.</p>
     <h2>Using the extension</h2><p>You may use and modify the extension under the MIT License. You are responsible for following the rules of each site you enable.</p>
     <h2>No content ownership</h2><p>The extension does not own or publish your conversations. Exported text remains subject to the rights and rules that already apply to it.</p>
@@ -144,7 +144,7 @@ function termsPage(): string {
 }
 
 function notFoundPage(): string {
-  return `${header()}<main id="main" class="legal not-found"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">This page is off the record</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
+  return `${header()}<main id="main" class="legal not-found" tabindex="-1"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">This page is off the record</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
 }
 
 function escapeHtml(value: string): string {
@@ -160,11 +160,11 @@ function renderDemoMessages(): void {
   const savedId = localStorage.getItem('demo:resume');
   container.innerHTML = demoMessages.map((message, index) => `<article id="${message.id}" class="demo-message ${savedId === message.id ? 'marked' : ''}">
     <span class="folio" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>
-    <h3 tabindex="-1">${escapeHtml(message.speaker)} <span>— message ${index + 1} of ${demoMessages.length}</span></h3>
+    <h3 tabindex="-1" data-transcript-chrome>${escapeHtml(message.speaker)} <span>— message ${index + 1} of ${demoMessages.length}</span></h3>
     <p>${escapeHtml(message.text)}</p>
-    ${message.links.length ? `<h4>Links in this message</h4><ul>${message.links.map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)} <span class="sr-only">(opens another site in a new tab)</span></a></li>`).join('')}</ul>` : ''}
+    ${message.links.length ? `<div data-transcript-chrome><h4>Links in this message</h4><ul>${message.links.map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)} <span class="sr-only">(opens another site in a new tab)</span></a></li>`).join('')}</ul></div>` : ''}
     <div class="message-actions"><button type="button" data-copy-message="${message.id}">Copy this message</button><button type="button" data-save-place="${message.id}">Save my place here</button></div>
-    ${savedId === message.id ? '<p class="marker-label">Saved place</p>' : ''}
+    ${savedId === message.id ? '<p class="marker-label" data-transcript-chrome>Saved place</p>' : ''}
   </article>`).join('');
   document.querySelector<HTMLElement>('#message-count')!.textContent = `${String(demoMessages.length).padStart(2, '0')} messages`;
 }
@@ -278,6 +278,13 @@ function render(path = location.pathname): void {
 }
 
 document.addEventListener('click', (event) => {
+  const skipLink = (event.target as Element).closest<HTMLAnchorElement>('.skip-link');
+  if (skipLink) {
+    event.preventDefault();
+    document.querySelector<HTMLElement>('#main')?.focus();
+    history.replaceState({}, '', '#main');
+    return;
+  }
   const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-route]');
   if (!link || event.defaultPrevented || event.button !== 0 || link.origin !== location.origin) return;
   event.preventDefault();

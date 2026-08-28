@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('@claim:local-processing keeps the complete demo flow on the same origin', async ({ page }) => {
+test('demo keeps the complete sample flow on the same origin', async ({ page }) => {
   const offOrigin: string[] = [];
   page.on('request', (request) => {
     if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') offOrigin.push(request.url());
@@ -12,7 +12,7 @@ test('@claim:local-processing keeps the complete demo flow on the same origin', 
   expect(offOrigin).toEqual([]);
 });
 
-test('@claim:semantic-record exposes one stable heading and anchor per message', async ({ page }) => {
+test('demo exposes one stable heading and anchor per message', async ({ page }) => {
   await page.goto('/demo');
   const messages = page.locator('.demo-message');
   await expect(messages).toHaveCount(4);
@@ -20,7 +20,7 @@ test('@claim:semantic-record exposes one stable heading and anchor per message',
   await expect(page.getByRole('heading', { level: 3 }).first()).toContainText('message 1 of 4');
 });
 
-test('@claim:text-export downloads every sample message as a text file', async ({ page }) => {
+test('demo downloads every sample message as a text file', async ({ page }) => {
   await page.goto('/demo');
   const [download] = await Promise.all([
     page.waitForEvent('download'),
@@ -32,7 +32,7 @@ test('@claim:text-export downloads every sample message as a text file', async (
   expect(text).toContain('WAI-ARIA dialog pattern: https://www.w3.org/');
 });
 
-test('@claim:copy-controls copy one message or the complete transcript', async ({ page, context }) => {
+test('demo copies one message or the complete transcript', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Copy this message' }).first().click();
@@ -43,13 +43,13 @@ test('@claim:copy-controls copy one message or the complete transcript', async (
   expect(copied).toContain('4. Support response');
 });
 
-test('@claim:link-lists expose named links from their source messages', async ({ page }) => {
+test('demo exposes named links from their source messages', async ({ page }) => {
   await page.goto('/demo');
   const link = page.locator('#sample-2').getByRole('link', { name: /WAI-ARIA dialog pattern/ });
   await expect(link).toHaveAttribute('href', 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/');
 });
 
-test('@claim:resume-marker returns focus to the saved message after reload', async ({ page }) => {
+test('demo returns focus to the saved message after reload', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Save my place here' }).nth(2).click();
   await page.reload();
@@ -58,7 +58,7 @@ test('@claim:resume-marker returns focus to the saved message after reload', asy
   await expect(page.locator('#sample-3')).toHaveClass(/marked/);
 });
 
-test('@claim:polite-updates announces a new reply without moving focus', async ({ page }) => {
+test('demo announces a new reply without moving focus', async ({ page }) => {
   await page.goto('/demo');
   const add = page.getByRole('button', { name: 'Add sample reply' });
   await add.focus();

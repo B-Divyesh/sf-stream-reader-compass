@@ -17,9 +17,9 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; background: var(--paper); }
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .14; background-image: repeating-linear-gradient(0deg, transparent 0 7px, rgba(23,23,19,.08) 8px); }
-a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 4px; }
 a:hover { text-decoration-thickness: 3px; }
-button, .button { min-height: 44px; }
+button, .button { min-width: 44px; min-height: 44px; }
 button { font: inherit; }
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
 .skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; padding: 12px 16px; background: var(--marker); color: var(--ink); font-weight: 700; transform: translateY(-150%); }
