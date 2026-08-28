@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stream-reader-compass.sociobot.in/sitemap.xml

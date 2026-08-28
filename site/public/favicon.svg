@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Stream Reader Compass mark">
+  <rect width="64" height="64" fill="#f2efe6"/>
+  <path d="M8 10h48v6H8zm0 19h31v6H8zm0 19h48v6H8z" fill="#171713"/>
+  <path d="M47 24l9 8-9 8z" fill="#f0c94d" stroke="#171713" stroke-width="3"/>
+</svg>
