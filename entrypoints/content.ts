@@ -40,7 +40,8 @@ function makeStyles(): string {
     button:focus-visible, a:focus-visible, h2:focus-visible { outline: 3px solid #171713; outline-offset: 3px; }
     .notice { min-height: 32px; margin: 0; padding: 6px 24px; background: #fffdf7; color: #245f3e; border-bottom: 1px solid #76766d; font-weight: 700; }
     .messages { width: min(820px,100%); margin: 0 auto; padding: 8px 24px 64px; counter-reset: entry; }
-    article { position: relative; padding: 32px 0 28px 72px; border-top: 1px solid #76766d; animation: press-line 220ms ease both; }
+    article { position: relative; padding: 32px 0 28px 72px; border-top: 1px solid #76766d; }
+    article::before { content: ''; position: absolute; inset: -1px 0 auto; height: 3px; background: #171713; transform-origin: left; animation: press-line 220ms ease both; }
     article:first-child { border-top: 0; }
     article.saved { border-left: 8px solid #f0c94d; padding-left: 64px; }
     .folio { position: absolute; left: 0; top: 34px; font: 700 13px/1 ui-monospace,monospace; }
@@ -53,7 +54,7 @@ function makeStyles(): string {
     .empty { margin: 48px auto; width: min(600px,calc(100% - 48px)); padding: 32px 0; border-block: 4px double #171713; }
     .empty h2 { font-size: 30px; }
     .help { color: #55554e; }
-    @keyframes press-line { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @keyframes press-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     @media (max-width: 600px) { .reader { inset: 0; border: 0; } .masthead { padding: 16px; } .toolbar,.notice { padding-inline: 16px; } .messages { padding-inline: 16px; } article { padding-left: 48px; } article.saved { padding-left: 40px; } }
     @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; } }
   `;

@@ -13,7 +13,7 @@
     "package:extension": "node scripts/package-extension.mjs",
     "build": "npm run build:extension && npm run package:extension && npm run build:site",
     "test": "playwright test",
-    "test:unit": "vitest run --config vitest.config.ts",
+    "test:unit": "wxt prepare && vitest run --config vitest.config.ts",
     "typecheck": "wxt prepare && tsc --noEmit",
     "lint": "wxt prepare && tsc --noEmit"
   },

@@ -1,15 +1,24 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
-test('demo keeps the complete sample flow on the same origin', async ({ page }) => {
+test('@claim:site-self-contained keeps the landing and demo self-contained', async ({ page }) => {
   const offOrigin: string[] = [];
   page.on('request', (request) => {
     if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') offOrigin.push(request.url());
   });
-  await page.goto('/demo');
+  await page.goto('/');
+  const landingAssets = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>('script[src], link[rel="stylesheet"], link[rel="preload"][as="font"]'))
+    .map((element) => element instanceof HTMLScriptElement ? element.src : element.href));
+  expect(landingAssets).not.toEqual([]);
+  expect(landingAssets.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL('/?demo=1');
   await page.getByRole('button', { name: 'Add sample reply' }).click();
   await page.getByRole('button', { name: 'Save my place here' }).first().click();
   await expect(page.getByRole('status').filter({ hasText: 'Place saved' })).toBeVisible();
   expect(offOrigin).toEqual([]);
+  const packageJson = JSON.parse(await readFile('package.json', 'utf8')) as { dependencies?: Record<string, string> };
+  expect(packageJson.dependencies ?? {}).toEqual({});
 });
 
 test('@claim:demo-one-click-isolation opens sample data in one click and keeps only demo keys', async ({ page }) => {

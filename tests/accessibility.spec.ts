@@ -35,6 +35,19 @@ test('J and K move through transcript headings', async ({ page }) => {
   await expect(page.locator('#sample-1 h3')).toBeFocused();
 });
 
+test('demo text keeps full contrast immediately after entry and reset', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL('/?demo=1');
+  const afterEntry = await new AxeBuilder({ page: page as never }).analyze();
+  expect(afterEntry.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+  expect(await page.locator('.demo-message').evaluateAll((messages) => messages.map((message) => getComputedStyle(message).opacity))).toEqual(['1', '1', '1', '1']);
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  const afterReset = await new AxeBuilder({ page: page as never }).analyze();
+  expect(afterReset.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+  expect(await page.locator('.demo-message').evaluateAll((messages) => messages.map((message) => getComputedStyle(message).opacity))).toEqual(['1', '1', '1', '1']);
+});
+
 test('route navigation moves focus to the new page heading', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).click();

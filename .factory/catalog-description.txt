@@ -1,1 +1,1 @@
-Read streaming browser chats as stable, keyboard-friendly transcripts without losing your place.
+Read long browser chats with lasting message headings and a saved place.

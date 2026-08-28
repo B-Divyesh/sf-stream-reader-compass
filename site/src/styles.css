@@ -98,7 +98,8 @@ h2 { margin: 0; max-width: 20ch; font: 700 clamp(36px,5vw,64px)/.98 Georgia,Camb
 .reader-tools button:hover,.message-actions button:hover { background: var(--marker); color: var(--ink); }
 .reader-status { min-height: 42px; margin: 0; padding: 9px 24px; border-bottom: 1px solid var(--rule); color: var(--success); font-weight: 700; }
 .demo-messages { width: min(850px,100%); margin: auto; padding: 16px 24px 64px; }
-.demo-message { border-bottom: 1px solid var(--rule); animation: press-line 220ms ease both; }
+.demo-message { border-bottom: 1px solid var(--rule); }
+.demo-message::before { content: ''; position: absolute; inset: -1px 0 auto; height: 3px; background: var(--ink); transform-origin: left; animation: press-line 220ms ease both; }
 .demo-message h3 span { color: var(--soft); font: 400 15px/1.4 Arial,sans-serif; }
 .demo-message p { max-width: 70ch; white-space: pre-wrap; }
 .demo-message h4 { margin-bottom: 4px; }
@@ -113,7 +114,7 @@ h2 { margin: 0; max-width: 20ch; font: 700 clamp(36px,5vw,64px)/.98 Georgia,Camb
 .legal code { padding: 2px 5px; background: var(--raised); border: 1px solid var(--rule); }
 .not-found { min-height: 70vh; }
 .not-found .button { margin-top: 24px; }
-@keyframes press-line { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes press-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (max-width: 800px) {
   .site-header { align-items: flex-start; }
   .site-header nav { gap: 8px 16px; }

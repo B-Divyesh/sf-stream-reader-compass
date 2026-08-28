@@ -1,6 +1,6 @@
 # Copy audit
 
-Checked 2026-08-28 after polish round 1. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
+Checked 2026-08-28 after polish round 2. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
 
 ## Landing page
 
@@ -19,16 +19,16 @@ Checked 2026-08-28 after polish round 1. Counts treat hyphenated terms, URLs, an
 | Choose the extension on a chat page. | 7 | Setup instruction. |
 | Enable that site only. | 4 | `site-consent` |
 | Press Alt+Shift+R. | 2 | Setup instruction. |
-| Each visible message gets a heading and stable anchor. | 9 | `semantic-record` |
+| Each visible message gets a heading that stays with that message. | 12 | `message-headings` |
 | Move by heading, save your place, copy a message, or export the transcript. | 13 | `heading-key-navigation`, `resume-marker`, `copy-controls`, `text-export` |
 | Download the ZIP, extract it, then load the folder from your browser's extensions page. | 14 | Install instruction. |
 | The extension does not call a model or summarize your words. | 11 | `no-remote-services` |
 | It reads visible message groups only after you enable that site. | 11 | `site-consent` |
-| It stores the enabled site list and your resume marker. | 10 | Storage disclosure. |
+| It stores your enabled sites and saved place. | 8 | Storage disclosure. |
 | It does not store transcript text. | 6 | `no-transcript-storage` |
 | Read streaming chats without losing your place. | 8 | Footer one-liner. |
 
-Labels and headings were also checked. “Preview of a stable transcript,” “Page not found,” and “Exit demo and install extension” name their content or result directly.
+Labels and headings were also checked. “Browser extension for screen-reader users,” “Transcript preview · first 2 of 4 messages,” “Sample transcript · 4 messages,” “Preview of a stable transcript,” “Page not found,” and “Exit demo and install extension” name their content or result directly.
 
 ## README
 
@@ -36,7 +36,7 @@ Labels and headings were also checked. “Preview of a stable transcript,” “
 | --- | ---: | --- |
 | Read streaming browser chats without losing your place. | 8 | Product job. |
 | Stream Reader Compass is a free Chrome-compatible extension for screen-reader users. | 11 | `no-account-free` |
-| It turns visible chat messages into a local transcript with headings, stable anchors, link lists, and copy controls. | 18 | `semantic-record`, `link-lists`, `copy-controls` |
+| It turns visible chat messages into a local transcript with lasting message headings, named links, and copy controls. | 17 | `message-headings`, `link-lists`, `copy-controls` |
 | You can export the transcript and save your place. | 9 | `text-export`, `resume-marker` |
 | New messages use polite announcements and do not move focus. | 9 | `polite-updates` |
 | Conversation text stays in the browser. | 6 | `local-processing` |
@@ -56,15 +56,15 @@ Labels and headings were also checked. “Preview of a stable transcript,” “
 | Escape closes the reader. | 4 | `escape-close` |
 | Requirements: Node.js 20 or newer and npm. | 7 | Development requirement. |
 | The exact production command is `npm run build`. | 8 | Build instruction. |
-| The site uses no runtime dependencies or third-party CDN files. | 10 | `no-remote-services` |
+| The site uses no runtime dependencies or third-party CDN files. | 10 | `site-self-contained` |
 | The generated hero source and prompt are in `assets/src/`. | 9 | Asset provenance. |
-| Enabled origins use extension sync storage. | 6 | Storage disclosure. |
+| Your enabled sites use Chrome sync storage. | 7 | Storage disclosure. |
 | Chrome stores each granted site permission. | 6 | Storage disclosure. |
-| A saved message identifier uses local extension storage. | 8 | Storage disclosure. |
+| Your saved place uses local extension storage. | 7 | Storage disclosure. |
 | Transcript text is never stored. | 5 | `no-transcript-storage` |
 | See `/privacy` for the full notice and `/terms` for terms. | 9 | Legal links. |
 | Websites change. | 2 | Limitation. |
-| The generic detector may need a new adapter for a changed chat layout. | 12 | Limitation. |
+| If a website changes its chat layout, message detection may need an update. | 13 | Limitation. |
 | This extension does not summarize, record, or send chat content. | 10 | `no-remote-services`, `no-transcript-storage` |
 
 ## First-screen read-aloud check

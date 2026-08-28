@@ -21,7 +21,7 @@ const pageDetails: Record<string, { title: string; description: string; canonica
   },
   '/privacy': {
     title: 'Privacy — Stream Reader Compass',
-    description: 'How Stream Reader Compass handles site settings, resume markers, and conversation text.',
+    description: 'How Stream Reader Compass handles site settings, saved places, and conversation text.',
     canonical: '/privacy'
   },
   '/terms': {
@@ -55,7 +55,7 @@ function landingPage(): string {
     <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="eyebrow">A steadier browser chat reader</p>
+          <p class="eyebrow">Browser extension for screen-reader users</p>
           <h1 id="hero-title" tabindex="-1">Read streaming chats without losing your place</h1>
           <p class="dek">For screen-reader users who need stable headings, links, and copy controls in long browser chats.</p>
           <div class="primary-row">
@@ -79,7 +79,7 @@ function landingPage(): string {
       </section>
 
       <section class="preview" aria-labelledby="preview-title">
-        <div class="section-heading"><p class="eyebrow">Reader specimen · 04 messages</p><h2 id="preview-title">Preview of a stable transcript</h2></div>
+        <div class="section-heading"><p class="eyebrow">Transcript preview · first 2 of 4 messages</p><h2 id="preview-title">Preview of a stable transcript</h2></div>
         <div class="preview-sheet">
           <article><span class="folio" aria-hidden="true">01</span><h3>You — message 1 of 4</h3><p>My checkout button works with a mouse, but keyboard focus disappears after the basket opens.</p></article>
           <article class="marked"><span class="folio" aria-hidden="true">02</span><h3>Support response — message 2 of 4</h3><p>Move focus to the basket heading when it opens. Return focus to the checkout button when it closes.</p><p class="marker-label">Saved place</p></article>
@@ -91,7 +91,7 @@ function landingPage(): string {
         <div class="section-heading"><p class="eyebrow">Three steps</p><h2 id="how-title">Turn a live chat into a reading record</h2></div>
         <ol class="steps">
           <li><span>1</span><div><h3>Enable one site</h3><p>Choose the extension on a chat page. Enable that site only.</p></div></li>
-          <li><span>2</span><div><h3>Open the reader</h3><p>Press Alt+Shift+R. Each visible message gets a heading and stable anchor.</p></div></li>
+          <li><span>2</span><div><h3>Open the reader</h3><p>Press Alt+Shift+R. Each visible message gets a heading that stays with that message.</p></div></li>
           <li><span>3</span><div><h3>Read and act</h3><p>Move by heading, save your place, copy a message, or export the transcript.</p></div></li>
         </ol>
         <aside id="install" class="install-note" aria-labelledby="install-title">
@@ -102,11 +102,11 @@ function landingPage(): string {
       </section>
 
       <section class="boundaries" aria-labelledby="boundaries-title">
-        <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">It reads the page you already opened</h2></div>
+        <div><h2 id="boundaries-title">It reads the page you already opened</h2></div>
         <div class="boundary-copy">
           <p>The extension does not call a model or summarize your words.</p>
           <p>It reads visible message groups only after you enable that site.</p>
-          <p>It stores the enabled site list and your resume marker. It does not store transcript text.</p>
+          <p>It stores your enabled sites and saved place. It does not store transcript text.</p>
           <a href="/privacy" data-route>Read the full privacy notice</a>
         </div>
       </section>
@@ -117,9 +117,9 @@ function demoPage(): string {
   return `<div class="demo-banner" role="region" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><span class="demo-exit"><a href="/#install" data-start-real>Exit demo and install extension</a><small>Clears sample data and opens installation steps.</small></span></div></div>
     ${header('demo')}
     <main id="main" class="demo-main" tabindex="-1">
-      <section class="demo-intro"><p class="eyebrow">Sample support chat · local sandbox</p><h1 tabindex="-1">Read this conversation in order</h1><p>Use headings or the message buttons. New replies never move your focus.</p></section>
+      <section class="demo-intro"><p class="eyebrow">Sample support chat · demo</p><h1 tabindex="-1">Read this conversation in order</h1><p>Use headings or the message buttons. New replies never move your focus.</p></section>
       <section class="reader-app" aria-labelledby="reader-title">
-        <header class="reader-masthead"><div><p class="eyebrow">The daily transcript · sample edition</p><h2 id="reader-title">Checkout keyboard support</h2></div><p id="message-count" class="edition-count"></p></header>
+        <header class="reader-masthead"><div><p class="eyebrow">Sample transcript · 4 messages</p><h2 id="reader-title">Checkout keyboard support</h2></div><p id="message-count" class="edition-count"></p></header>
         <nav class="reader-tools" aria-label="Transcript tools">
           <button class="primary" type="button" data-copy-all>Copy all messages</button>
           <button type="button" data-export>Export text file</button>
@@ -139,9 +139,9 @@ function privacyPage(): string {
   return `${header('privacy')}<main id="main" class="legal" tabindex="-1"><p class="eyebrow">Privacy notice · effective 28 August 2026</p><h1 tabindex="-1">Your conversation stays in your browser</h1>
     <p class="lede">Stream Reader Compass processes visible page content on your device. It does not send conversation text to us.</p>
     <h2>What the extension reads</h2><p>After you enable a site and open the reader, the extension reads visible message text and links from that page. It uses them to make the transcript you see.</p>
-    <h2>What the extension stores</h2><p>Your browser stores the list of enabled site origins in extension sync storage. Chrome also stores the permission you grant for each enabled site. It stores one message identifier per page when you save your place. Transcript text is not stored.</p>
+    <h2>What the extension stores</h2><p>Your enabled sites use Chrome sync storage. Chrome also stores the permission you grant for each enabled site. Your saved place uses local extension storage. Transcript text is not stored.</p>
     <h2>What the demo stores</h2><p>The demo uses keys beginning with <code>demo:</code> in local storage. Reset demo or exit to install to remove them. It never reads extension data.</p>
-    <h2>What leaves your device</h2><p>No conversation text, links, resume markers, or enabled site list is sent to Stream Reader Compass. The website loads only its own files. There is no analytics script.</p>
+    <h2>What leaves your device</h2><p>No conversation text, links, saved places, or enabled site list is sent to Stream Reader Compass.</p>
     <h2>Your controls</h2><p>Disable a site from the extension popup to remove its access. Remove the extension to delete its local data. Reset the demo from its top banner.</p>
     <h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p>
   </main>${footer()}`;
@@ -158,7 +158,7 @@ function termsPage(): string {
 }
 
 function notFoundPage(): string {
-  return `${header()}<main id="main" class="legal not-found" tabindex="-1"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">Page not found</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
+  return `${header()}<main id="main" class="legal not-found" tabindex="-1"><h1 tabindex="-1">Page not found</h1><p>The address does not match a page on this site.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
 }
 
 function escapeHtml(value: string): string {
@@ -266,7 +266,7 @@ function bindDemo(): void {
       const id = button.dataset.savePlace;
       renderDemoMessages();
       document.querySelector<HTMLElement>(`#${id} h3`)?.focus();
-      status.textContent = 'Place saved in the demo sandbox.';
+      status.textContent = 'Place saved in the demo.';
     }
   });
   document.addEventListener('keydown', demoKeyHandler);

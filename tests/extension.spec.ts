@@ -84,7 +84,7 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   }
 });
 
-test('@claim:local-processing @claim:semantic-record @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
+test('@claim:local-processing @claim:message-headings @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
   const extensionPath = await fixtureExtensionPath(testInfo.outputPath.bind(testInfo));
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
     headless: false,

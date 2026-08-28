@@ -7,11 +7,11 @@
     "sandbox": "fresh browser context; demo flow; assert every network request is same-origin"
   },
   {
-    "id": "semantic-record",
-    "claim": "Each visible message gets a heading and stable anchor.",
+    "id": "message-headings",
+    "claim": "Each visible message gets a heading that stays with that message.",
     "where": "how it works, extension reader",
-    "test": "npm test -- --grep @claim:semantic-record",
-    "sandbox": "fresh browser context; demo data; assert one named heading and id per message"
+    "test": "npm test -- --grep @claim:message-headings",
+    "sandbox": "fresh browser extension profile; real fixture messages; assert one named heading per visible message and retain the saved message after insertion"
   },
   {
     "id": "text-export",
@@ -110,5 +110,12 @@
     "where": "README, demo keyboard help",
     "test": "npm test -- --grep @claim:heading-key-navigation",
     "sandbox": "fresh browser extension profile with sample messages; open the injected reader; press J, J, K; assert heading focus moves forward, forward, and back"
+  },
+  {
+    "id": "site-self-contained",
+    "claim": "The site uses no runtime dependencies or third-party CDN files.",
+    "where": "README Develop",
+    "test": "npm test -- --grep @claim:site-self-contained",
+    "sandbox": "fresh browser context; load landing and one-click demo; record requests; assert every request is same-origin and every script, stylesheet, and font URL is self-hosted"
   }
 ]
