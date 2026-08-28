@@ -21,6 +21,20 @@
     "sandbox": "fresh browser context; demo data; inspect downloaded file for all four messages and a link URL"
   },
   {
+    "id": "copy-controls",
+    "claim": "Copies one message or the complete transcript.",
+    "where": "reader message actions and toolbar",
+    "test": "npm test -- --grep @claim:copy-controls",
+    "sandbox": "fresh browser context with clipboard permission; copy one sample message, then all messages; inspect clipboard text"
+  },
+  {
+    "id": "link-lists",
+    "claim": "Shows named links under their source message.",
+    "where": "reader message body",
+    "test": "npm test -- --grep @claim:link-lists",
+    "sandbox": "fresh browser context; demo data; assert the named WAI-ARIA link keeps its source URL"
+  },
+  {
     "id": "resume-marker",
     "claim": "Returns to your saved message.",
     "where": "landing preview and reader",
@@ -35,6 +49,20 @@
     "sandbox": "fresh browser context; focus Add sample reply; add reply; assert focus remains and polite status changes"
   },
   {
+    "id": "pause-updates",
+    "claim": "Pauses transcript updates until you resume them.",
+    "where": "reader toolbar",
+    "test": "npm test -- --grep @claim:pause-updates",
+    "sandbox": "fresh browser context; pause; reject a sample reply; resume; add the reply"
+  },
+  {
+    "id": "demo-reset",
+    "claim": "Reset demo removes sandbox changes.",
+    "where": "demo banner",
+    "test": "npm test -- --grep @claim:demo-reset",
+    "sandbox": "fresh browser context; save a place and add a reply; reset; assert four messages and no demo storage keys"
+  },
+  {
     "id": "no-account-free",
     "claim": "No account is needed. Free to use.",
     "where": "landing facts",
@@ -47,5 +75,12 @@
     "where": "how it works, privacy notice",
     "test": "npm test -- --grep @claim:site-consent",
     "sandbox": "fresh browser extension profile; assert open is rejected with no enabled origin, then enable the test origin and assert four message headings"
+  },
+  {
+    "id": "no-transcript-storage",
+    "claim": "The extension does not store transcript text.",
+    "where": "landing boundaries, privacy notice, README",
+    "test": "npm test -- --grep @claim:no-transcript-storage",
+    "sandbox": "fresh browser extension profile; open a real four-message reader; inspect all local and sync extension storage for sample text"
   }
 ]

@@ -1,7 +1,7 @@
 import { chromium, expect, test } from '@playwright/test';
 import path from 'node:path';
 
-test('@claim:site-consent blocks reading until the current origin is enabled', async ({}, testInfo) => {
+test('@claim:site-consent @claim:no-transcript-storage blocks reading until enablement and keeps message text out of storage', async ({}, testInfo) => {
   const extensionPath = path.resolve('.output/chrome-mv3');
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
     headless: false,
@@ -30,6 +30,11 @@ test('@claim:site-consent blocks reading until the current origin is enabled', a
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
     const headingCount = await page.locator('#stream-reader-compass-host').evaluate((host) => host.shadowRoot!.querySelectorAll('article h2').length);
     expect(headingCount).toBe(4);
+    const stored = await worker.evaluate(async () => ({
+      local: await chrome.storage.local.get(null),
+      sync: await chrome.storage.sync.get(null)
+    }));
+    expect(JSON.stringify(stored)).not.toContain('checkout button works with a mouse');
     await page.locator('#stream-reader-compass-host').evaluate((host) => (host.shadowRoot!.querySelector('button.close') as HTMLButtonElement).click());
     await page.goto('http://127.0.0.1:4173/privacy');
     const privacyTab = await worker.evaluate(async () => {

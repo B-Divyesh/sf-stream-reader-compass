@@ -32,6 +32,23 @@ test('@claim:text-export downloads every sample message as a text file', async (
   expect(text).toContain('WAI-ARIA dialog pattern: https://www.w3.org/');
 });
 
+test('@claim:copy-controls copy one message or the complete transcript', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Copy this message' }).first().click();
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain('checkout button works with a mouse');
+  await page.getByRole('button', { name: 'Copy all messages' }).click();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain('1. You');
+  expect(copied).toContain('4. Support response');
+});
+
+test('@claim:link-lists expose named links from their source messages', async ({ page }) => {
+  await page.goto('/demo');
+  const link = page.locator('#sample-2').getByRole('link', { name: /WAI-ARIA dialog pattern/ });
+  await expect(link).toHaveAttribute('href', 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/');
+});
+
 test('@claim:resume-marker returns focus to the saved message after reload', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Save my place here' }).nth(2).click();
@@ -49,6 +66,27 @@ test('@claim:polite-updates announces a new reply without moving focus', async (
   await expect(page.getByRole('status').filter({ hasText: 'One new message added' })).toBeVisible();
   await expect(add).toBeFocused();
   await expect(page.locator('.demo-message')).toHaveCount(5);
+});
+
+test('@claim:pause-updates keeps the transcript fixed until updates resume', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Pause updates' }).click();
+  await page.getByRole('button', { name: 'Add sample reply' }).click();
+  await expect(page.locator('.demo-message')).toHaveCount(4);
+  await expect(page.getByRole('status').filter({ hasText: 'updates are paused' })).toBeVisible();
+  await page.getByRole('button', { name: 'Resume updates' }).click();
+  await page.getByRole('button', { name: 'Add sample reply' }).click();
+  await expect(page.locator('.demo-message')).toHaveCount(5);
+});
+
+test('@claim:demo-reset removes sandbox changes and restores the sample', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Save my place here' }).first().click();
+  await page.getByRole('button', { name: 'Add sample reply' }).click();
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.locator('.demo-message')).toHaveCount(4);
+  await expect(page.locator('.demo-message.marked')).toHaveCount(0);
+  expect(await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('demo:')))).toEqual([]);
 });
 
 test('@claim:no-account-free presents the full demo without sign-in or payment', async ({ page }) => {

@@ -49,7 +49,7 @@ export function extractTranscript(root: ParentNode = document): TranscriptMessag
         label: (link.textContent || link.getAttribute('aria-label') || 'Open link').trim(),
         url: link.href
       }))
-      .filter((link, linkIndex, all) => link.url && all.findIndex((other) => other.url === link.url) === linkIndex);
+      .filter((link, linkIndex, all) => /^(https?|mailto):/.test(link.url) && all.findIndex((other) => other.url === link.url) === linkIndex);
     return [{
       id: `message-${index + 1}`,
       speaker: speakerFor(element, index),
