@@ -15,6 +15,7 @@ Implementation commit `d0420beb9115619d1fecc2788ac123a7cdb3e052` was pushed to `
 - Completed route-specific title, description, canonical, Open Graph, and Twitter updates. The static and SPA 404s share the standard header/footer and the static 404 has complete metadata.
 - Kept all three header destinations on mobile, added a clear demo-exit helper, and verified no overflow or sub-44 px control at 390 px.
 - Added the verb-first, 96-character `.factory/catalog-description.txt`.
+- Made the downloadable ZIP reproducible by fixing archive entry timestamps; two consecutive package runs produced SHA-256 `c6f41e571c76a162c2bda40e424793ad22401e758470497d007bfbbbf0008ca9`.
 - Preserved all earlier repairs for stable anchors, focus retention, hidden-content filtering, duplicate messages, clean export, dialog focus containment, skip focus, caching, AVIF MIME type, and dependency safety.
 
 ## Verification

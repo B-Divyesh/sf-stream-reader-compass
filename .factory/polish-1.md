@@ -38,6 +38,7 @@ Polished candidate `892747aa72f383f6816719917a1c38f188caee82` against adversaria
 - Accessibility: Playwright Axe found zero serious/critical issues on all site routes at desktop and 390 px, the extension popup, and the reader dialog.
 - Privacy/offline: the demo emitted only same-origin requests; storage isolation passed; the packaged reader opened and completed its core flow after the browser context was set offline.
 - Performance: local Lighthouse 100/100/100/100; live Lighthouse 98 performance, 100 accessibility, 100 best practices, 100 SEO; LCP 1.3 s, TBT 0 ms, CLS 0, 86 KiB transfer.
+- Packaging: two consecutive ZIP builds produced the same SHA-256, `c6f41e571c76a162c2bda40e424793ad22401e758470497d007bfbbbf0008ca9`.
 - Factory URL verifier: home and `/?demo=1` each returned 200 with `lang=en`, one `h1`, `<main>`, no missing alt text, no unnamed buttons, and zero console errors.
 - Deployment: Azure Static Web Apps deployment `2da35f15-3840-40e4-ad42-7cd308b78cac`; custom domain returned 200 after upload.
 

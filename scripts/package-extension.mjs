@@ -5,6 +5,7 @@ import archiver from 'archiver';
 const source = path.resolve('.output/chrome-mv3');
 const targetDir = path.resolve('site/public/downloads');
 const target = path.join(targetDir, 'stream-reader-compass-chrome.zip');
+const archiveDate = new Date('2020-01-01T00:00:00Z');
 
 if (!existsSync(source)) throw new Error('Build the extension before packaging it.');
 mkdirSync(targetDir, { recursive: true });
@@ -17,7 +18,7 @@ await new Promise((resolve, reject) => {
   output.on('error', reject);
   archive.on('error', reject);
   archive.pipe(output);
-  archive.directory(source, false);
+  archive.directory(source, false, (entry) => ({ ...entry, date: archiveDate }));
   archive.finalize();
 });
 
