@@ -99,11 +99,11 @@ function landingPage(): string {
           <li><span>2</span><div><h3>Open the reader</h3><p>Select <strong>Open transcript reader</strong>. Each visible message gets a heading that stays with that message.</p></div></li>
           <li><span>3</span><div><h3>Read and act</h3><p>Move by heading, save your place, copy a message, or export the transcript.</p></div></li>
         </ol>
-        <aside id="install" class="install-note" aria-labelledby="install-title">
+        <div id="install" class="install-note" aria-labelledby="install-title">
           <h3 id="install-title">Install the unpacked extension</h3>
           <p>Download the ZIP, extract it, then load the folder from your browser's extensions page.</p>
           <a class="button secondary" href="/downloads/stream-reader-compass-chrome.zip" download>Download extension ZIP</a>
-        </aside>
+        </div>
       </section>
 
       <section class="boundaries" aria-labelledby="boundaries-title">
