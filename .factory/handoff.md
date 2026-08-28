@@ -4,7 +4,7 @@
 
 Perfection-loop round 1 is complete with no unresolved review finding. The product remains a WXT + TypeScript Manifest V3 browser extension with a static Vite site in `dist/site/`. The broadsheet visual identity and original generated editorial art are unchanged.
 
-Implementation commit `d0420beb9115619d1fecc2788ac123a7cdb3e052` was pushed to `origin/main`. The deployed static artifact was built from that commit.
+Implementation commit `d0420beb9115619d1fecc2788ac123a7cdb3e052` and reproducible-package commit `f459a1e49b7d6862ea2fefef503f6e5cfc481709` were pushed to `origin/main`. The deployed static artifact was built from the latter.
 
 ## What changed
 
@@ -43,7 +43,7 @@ Lighthouse:
 ## Deployment and cold live check
 
 - Deployment command: `/opt/fleet/lib/deploy-static.sh stream-reader-compass dist/site`
-- Azure Static Web Apps deployment: `2da35f15-3840-40e4-ad42-7cd308b78cac`
+- Final Azure Static Web Apps deployment: `cbcea438-c3ff-4cfb-a046-f3b612b0d342`
 - Live site: <https://stream-reader-compass.sociobot.in/>
 - Demo: <https://stream-reader-compass.sociobot.in/?demo=1>
 - ZIP: <https://stream-reader-compass.sociobot.in/downloads/stream-reader-compass-chrome.zip>
