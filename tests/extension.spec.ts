@@ -30,6 +30,15 @@ test('@claim:site-consent blocks reading until the current origin is enabled', a
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
     const headingCount = await page.locator('#stream-reader-compass-host').evaluate((host) => host.shadowRoot!.querySelectorAll('article h2').length);
     expect(headingCount).toBe(4);
+    await page.locator('#stream-reader-compass-host').evaluate((host) => (host.shadowRoot!.querySelector('button.close') as HTMLButtonElement).click());
+    await page.goto('http://127.0.0.1:4173/privacy');
+    const privacyTab = await worker.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ url: 'http://127.0.0.1:4173/privacy' });
+      return tabs[0].id!;
+    });
+    await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), privacyTab);
+    const emptyHeading = await page.locator('#stream-reader-compass-host').evaluate((host) => host.shadowRoot!.querySelector('.empty h2')?.textContent);
+    expect(emptyHeading).toBe('No chat messages found');
   } finally {
     await context.close();
   }

@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-for (const route of ['/', '/demo', '/privacy', '/terms']) {
+for (const route of ['/', '/demo', '/privacy', '/terms', '/missing-page']) {
   test(`${route} has one h1, landmarks, and no serious accessibility issues`, async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
@@ -16,6 +16,23 @@ for (const route of ['/', '/demo', '/privacy', '/terms']) {
     expect(overflow).toBe(false);
   });
 }
+
+test('unknown routes show the designed 404 page', async ({ page }) => {
+  await page.goto('/missing-page');
+  await expect(page).toHaveTitle('Page not found — Stream Reader Compass');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is off the record');
+  await expect(page.getByRole('link', { name: 'Return to the front page' })).toBeVisible();
+});
+
+test('J and K move through transcript headings', async ({ page }) => {
+  await page.goto('/demo');
+  await page.keyboard.press('j');
+  await expect(page.locator('#sample-1 h3')).toBeFocused();
+  await page.keyboard.press('j');
+  await expect(page.locator('#sample-2 h3')).toBeFocused();
+  await page.keyboard.press('k');
+  await expect(page.locator('#sample-1 h3')).toBeFocused();
+});
 
 test('route navigation moves focus to the new page heading', async ({ page }) => {
   await page.goto('/');

@@ -115,6 +115,7 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
   if (document.getElementById(HOST_ID)) return { ok: true };
   messages = extractTranscript(document);
   const host = document.createElement('div');
+  const previousFocus = document.activeElement as HTMLElement | null;
   host.id = HOST_ID;
   const shadow = host.attachShadow({ mode: 'open' });
   shadow.innerHTML = `<style>${makeStyles()}</style><div class="backdrop"></div><section class="reader" role="dialog" aria-modal="true" aria-labelledby="src-title"><header class="masthead"><div><p class="kicker">Local transcript · ${escapeHtml(location.hostname)}</p><h1 id="src-title" tabindex="-1">Conversation reader</h1></div><button class="close" type="button" aria-label="Close transcript reader">Close</button></header><nav class="toolbar" aria-label="Transcript tools"><button class="primary" data-action="copy-all" type="button">Copy all messages</button><button data-action="export" type="button">Export text file</button><button data-action="previous" type="button">Previous message</button><button data-action="next" type="button">Next message</button><button data-action="refresh" type="button">Check for new messages</button><button data-action="pause" type="button">Pause updates</button></nav><p class="notice" role="status" aria-live="polite">${messages.length ? `${messages.length} messages ready.` : 'No messages found yet.'}</p><main class="messages"></main></section>`;
@@ -141,6 +142,7 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
     clearTimeout(refreshTimer);
     host.remove();
     document.documentElement.style.overflow = priorOverflow;
+    previousFocus?.focus();
   };
 
   shadow.addEventListener('click', async (event) => {
@@ -187,6 +189,18 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
   shadow.addEventListener('keydown', (event) => {
     const keyEvent = event as KeyboardEvent;
     if (keyEvent.key === 'Escape') close();
+    if (keyEvent.key === 'Tab') {
+      const focusable = Array.from(shadow.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'));
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (keyEvent.shiftKey && shadow.activeElement === first) {
+        keyEvent.preventDefault();
+        last?.focus();
+      } else if (!keyEvent.shiftKey && shadow.activeElement === last) {
+        keyEvent.preventDefault();
+        first?.focus();
+      }
+    }
     if (keyEvent.key.toLowerCase() === 'j' || keyEvent.key.toLowerCase() === 'k') {
       const selector = keyEvent.key.toLowerCase() === 'j' ? '[data-action="next"]' : '[data-action="previous"]';
       shadow.querySelector<HTMLButtonElement>(selector)?.click();

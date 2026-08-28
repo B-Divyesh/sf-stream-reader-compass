@@ -78,7 +78,8 @@ h2 { margin: 0; max-width: 20ch; font: 700 clamp(36px,5vw,64px)/.98 Georgia,Camb
 .build { grid-column: 1/-1; color: var(--soft); font-family: ui-monospace,monospace; }
 .demo-banner { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 52px; padding: 8px clamp(16px,4vw,64px); color: var(--ink); background: var(--marker); border-bottom: 2px solid var(--ink); font-size: 14px; }
 .demo-banner div { display: flex; align-items: center; gap: 16px; }
-.demo-banner button { min-height: 36px; padding: 4px 10px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
+.demo-banner button { min-height: 44px; padding: 4px 10px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
+.demo-banner a,.site-footer nav a { display: inline-flex; align-items: center; min-height: 44px; }
 .demo-main { padding: 64px clamp(16px,5vw,72px) 96px; }
 .demo-intro { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px 64px; align-items: end; margin-bottom: 48px; }
 .demo-intro .eyebrow { grid-column: 1/-1; }

@@ -22,11 +22,15 @@ const pageDetails: Record<string, { title: string; description: string }> = {
   '/terms': {
     title: 'Terms — Stream Reader Compass',
     description: 'Terms for the free Stream Reader Compass browser extension and website.'
+  },
+  '/404': {
+    title: 'Page not found — Stream Reader Compass',
+    description: 'This Stream Reader Compass page could not be found.'
   }
 };
 
 function setMeta(path: string): void {
-  const details = pageDetails[path] || pageDetails['/'];
+  const details = pageDetails[path] || pageDetails['/404'];
   document.title = details.title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = details.description;
   document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://stream-reader-compass.sociobot.in${path}`;
@@ -133,6 +137,10 @@ function termsPage(): string {
     <h2>Availability</h2><p>The extension is provided as is. Websites can change their page structure, so message detection may need an update.</p>
     <h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with a terms question.</p>
   </main>${footer()}`;
+}
+
+function notFoundPage(): string {
+  return `${header()}<main id="main" class="legal not-found"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">This page is off the record</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
 }
 
 function escapeHtml(value: string): string {
@@ -259,7 +267,8 @@ function render(path = location.pathname): void {
   if (cleanPath === '/demo') app.innerHTML = demoPage();
   else if (cleanPath === '/privacy') app.innerHTML = privacyPage();
   else if (cleanPath === '/terms') app.innerHTML = termsPage();
-  else app.innerHTML = landingPage();
+  else if (cleanPath === '/') app.innerHTML = landingPage();
+  else app.innerHTML = notFoundPage();
   if (cleanPath === '/demo') bindDemo();
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
 }
