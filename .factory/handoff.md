@@ -1,5 +1,13 @@
 # Stream Reader Compass v1 handoff
 
+## Independent verification status — FAIL
+
+Candidate `8798729145686f7efe294c7d8ccefe14ee288799` was independently tested on 2026-08-28 against `https://stream-reader-compass.sociobot.in`. **Do not release this candidate.**
+
+The live deployment matches the candidate, but the real extension loses focus during streamed updates while announcing that focus stayed put, lets keyboard focus escape its modal reader, reads `display:none` message content despite the visible-content promise, moves saved markers when an earlier message is inserted, and drops legitimate duplicate visible messages. The declared `npm run test:unit` command also fails. See [verification.md](verification.md) for exact reproduction evidence, claim results, live headers, accessibility/performance results, and required repairs.
+
+The builder verification below is retained as historical context. Its passing demo claim tests do not cover the failing extension behaviors reproduced by independent QA.
+
 ## Shipped
 
 - WXT + TypeScript Manifest V3 extension for Chrome-compatible browsers.
