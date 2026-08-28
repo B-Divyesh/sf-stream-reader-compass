@@ -33,8 +33,8 @@ The deploy root is `dist/site/`. Its `index.html` is at the root. The build also
 - `npm audit --omit=dev --audit-level=high`: 0 production vulnerabilities.
 - Factory `verify-url.sh`: 200 response, title and `lang`, one `h1`, main landmark, all image alt text, zero console errors. Local load completed in 555 ms.
 - Lighthouse 12.8.2, mobile mode on the production build: **Performance 100, Accessibility 100, Best Practices 100, SEO 100**.
-- Lighthouse lab metrics: LCP 1.8 s, CLS 0, Total Blocking Time 0 ms. INP was not available in the no-interaction lab run.
-- Output budgets: initial site JavaScript 5.71 KB gzip, CSS 3.02 KB gzip, no font downloads, hero WebP 128,528 bytes. Extension unpacked total is 24.3 KB; packaged ZIP is about 14 KB.
+- Lighthouse lab metrics: LCP 1.7 s, CLS 0, Total Blocking Time 0 ms. INP was not available in the no-interaction lab run.
+- Output budgets: initial site JavaScript 5.71 KB gzip, CSS 3.02 KB gzip, no font downloads. The 600 px hero is 24 KB AVIF or 39 KB WebP; the 1200 px WebP is 145 KB. Extension unpacked total is 24.3 KB; packaged ZIP is about 14 KB.
 - Original hero inspected for readable text artifacts, brands, people, and visual seams. None were found. Prompt and generation metadata are in `assets/src/` and `.factory/design.md`.
 
 ## Privacy notes

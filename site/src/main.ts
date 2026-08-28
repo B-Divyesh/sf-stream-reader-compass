@@ -55,7 +55,11 @@ function landingPage(): string {
           </ul>
         </div>
         <figure class="hero-art">
-          <img src="/assets/hero-editorial.webp" width="1200" height="800" alt="Loose paper strips align into one ordered newspaper column beside a compass needle." fetchpriority="high" decoding="async" />
+          <picture>
+            <source type="image/avif" srcset="/assets/hero-editorial-600.avif 600w, /assets/hero-editorial-1200.avif 1200w" sizes="(max-width: 800px) 100vw, 50vw" />
+            <source type="image/webp" srcset="/assets/hero-editorial-600.webp 600w, /assets/hero-editorial-1200.webp 1200w" sizes="(max-width: 800px) 100vw, 50vw" />
+            <img src="/assets/hero-editorial-1200.jpg" width="1200" height="800" alt="Loose paper strips align into one ordered newspaper column beside a compass needle." fetchpriority="high" decoding="async" />
+          </picture>
           <figcaption>Loose chat fragments become one numbered reading order.</figcaption>
         </figure>
       </section>

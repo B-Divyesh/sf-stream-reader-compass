@@ -60,7 +60,7 @@ The signature motion is a 220 ms “press line”: a new message fades in and ri
 
 Use case: stylized-concept. Asset type: wide landing hero and social crop. Subject: an abstract stream of narrow paper transcript strips being aligned by a small brass compass needle into one orderly newspaper column. World: an editorial printmaker's table. Materials: fibrous newsprint, black letterpress ink, a single muted yellow registration mark. Light: soft raking studio light with tactile shadows. Lens/composition: wide overhead view, strong negative space, clear left-to-right flow. Palette words: warm ivory, charcoal black, muted registration yellow. Negative list: no people, no hands, no screens, no logos, no readable text, no letters, no watermark, no gradients, no blue or purple, no glossy 3D render.
 
-Generated on 2026-08-28 with the factory image deployment using `/opt/fleet/lib/gen-image.sh`. Generated work is original to this product. Source PNG and prompt sidecar live in `assets/src/`; optimized WebP and AVIF files ship with the site.
+Generated on 2026-08-28 with the factory image deployment using `/opt/fleet/lib/gen-image.sh`. Generated work is original to this product. Source PNG and prompt sidecar live in `assets/src/`; responsive AVIF and WebP files plus a JPEG fallback ship with the site.
 
 ## Accessibility rationale
 
