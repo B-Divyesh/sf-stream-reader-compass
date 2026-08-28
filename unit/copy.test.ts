@@ -14,6 +14,8 @@ describe('plain-language release copy', () => {
     expect(site).toContain('Browser extension for screen-reader users');
     expect(site).toContain('Transcript preview · first 2 of 4 messages');
     expect(site).toContain('How to turn a live chat into a transcript');
+    expect(site).toContain('Navigate, save, copy, or export');
+    expect(site).toContain('The reader numbers visible chat messages in their page order.');
     expect(site).toContain('Go to previous message');
     expect(site).toContain('Go to next message');
     expect(site).not.toContain('reading record');
@@ -26,6 +28,9 @@ describe('plain-language release copy', () => {
     expect(site).not.toContain('Press Alt+Shift+R');
     expect(site).not.toContain('Chrome-compatible');
     expect(site).not.toContain('Edition 404');
+    expect(site).not.toContain('Read and act');
+    expect(site).not.toContain('Loose chat fragments');
+    expect(site).not.toContain('Remove the extension to delete its local data');
   });
 
   test('keeps the catalog description verb-first and within 120 characters', () => {

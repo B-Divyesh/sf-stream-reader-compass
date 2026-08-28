@@ -79,7 +79,7 @@ function landingPage(): string {
             <source type="image/webp" srcset="/assets/hero-editorial-600.webp 600w, /assets/hero-editorial-1200.webp 1200w" sizes="(max-width: 800px) 100vw, 50vw" />
             <img src="/assets/hero-editorial-1200.jpg" width="1200" height="800" alt="Loose paper strips align into one ordered newspaper column beside a compass needle." fetchpriority="high" decoding="async" />
           </picture>
-          <figcaption>Loose chat fragments become one numbered reading order.</figcaption>
+          <figcaption>The reader numbers visible chat messages in their page order.</figcaption>
         </figure>
       </section>
 
@@ -97,7 +97,7 @@ function landingPage(): string {
         <ol class="steps">
           <li><span>1</span><div><h3>Enable one site</h3><p>Choose the extension on a chat page. Enable that site only.</p></div></li>
           <li><span>2</span><div><h3>Open the reader</h3><p>Select <strong>Open transcript reader</strong>. Each visible message gets a heading that stays with that message.</p></div></li>
-          <li><span>3</span><div><h3>Read and act</h3><p>Move by heading, save your place, copy a message, or export the transcript.</p></div></li>
+          <li><span>3</span><div><h3>Navigate, save, copy, or export</h3><p>Move by heading, save your place, copy a message, or export the transcript.</p></div></li>
         </ol>
         <div id="install" class="install-note" aria-labelledby="install-title">
           <h3 id="install-title">Install the unpacked extension</h3>
@@ -157,7 +157,7 @@ function privacyPage(): string {
     <h2>What the extension stores</h2><p>Your enabled sites use Chrome sync storage. Chrome also stores the permission you grant for each enabled site. Your saved place uses local extension storage. Transcript text is not stored.</p>
     <h2>What the demo stores</h2><p>The demo uses keys beginning with <code>demo:</code> in local storage. Reset demo or exit to install to remove them. It never reads extension data.</p>
     <h2>What leaves your device</h2><p>No conversation text, links, saved places, or enabled site list is sent to Stream Reader Compass.</p>
-    <h2>Your controls</h2><p>Disable a site from the extension popup to remove its access. Remove the extension to delete its local data. Reset the demo from its top banner.</p>
+    <h2>Your controls</h2><p>Disable a site from the extension popup to remove its access. Reset the demo from its top banner.</p>
     <h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p>
   </main>${footer()}`;
 }

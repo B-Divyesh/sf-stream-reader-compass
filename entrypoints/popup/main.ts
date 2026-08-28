@@ -49,8 +49,13 @@ enableButton.addEventListener('click', async () => {
     status.textContent = 'Reader enabled for this site only. Open it when the chat is ready.';
   } else {
     if (tabId) await chrome.tabs.sendMessage(tabId, { type: 'CLOSE_READER' }).catch(() => undefined);
+    const removed = await chrome.permissions.remove({ origins: [pattern] });
+    const stillGranted = await chrome.permissions.contains({ origins: [pattern] });
+    if (!removed && stillGranted) {
+      status.textContent = 'Site access could not be removed. Close this popup, then try again.';
+      return;
+    }
     await chrome.storage.sync.set({ enabledOrigins: origins.filter((item) => item !== origin) });
-    await chrome.permissions.remove({ origins: [pattern] });
     status.textContent = 'Reader disabled and site access removed.';
   }
   await refresh();

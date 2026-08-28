@@ -8,10 +8,10 @@
   },
   {
     "id": "message-headings",
-    "claim": "Each visible message gets a heading that stays with that message.",
-    "where": "how it works, extension reader",
+    "claim": "The reader numbers visible chat messages in page order, and each heading stays with its message.",
+    "where": "landing hero caption, how it works, extension reader",
     "test": "npm test -- --grep @claim:message-headings",
-    "sandbox": "fresh browser extension profile; real fixture messages; assert one named heading per visible message and retain the saved message after insertion"
+    "sandbox": "fresh browser extension profile; real fixture messages; assert numbered headings follow source page order and retain the saved message after insertion"
   },
   {
     "id": "text-export",
@@ -82,6 +82,13 @@
     "where": "how it works, privacy notice",
     "test": "npm test -- --grep @claim:site-consent",
     "sandbox": "fresh browser extension profile; assert open is rejected with no enabled origin, then enable the test origin and assert four message headings"
+  },
+  {
+    "id": "site-disable-removes-access",
+    "claim": "Disabling a site removes its browser access.",
+    "where": "privacy notice, extension popup",
+    "test": "npm test -- --grep @claim:site-disable-removes-access",
+    "sandbox": "fresh browser extension profile; enable the fixture origin through the popup, disable it, assert its sync entry and optional permission are removed, then assert the reader cannot open"
   },
   {
     "id": "no-transcript-storage",

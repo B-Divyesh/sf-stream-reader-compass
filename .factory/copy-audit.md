@@ -1,6 +1,6 @@
 # Copy audit
 
-Checked 2026-08-28 after polish round 3. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
+Checked 2026-08-28 after polish round 4. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
 
 ## Landing page
 
@@ -13,7 +13,7 @@ Checked 2026-08-28 after polish round 3. Counts treat hyphenated terms, URLs, an
 | No account is needed. | 5 | `no-account-free` |
 | Free to use. | 3 | `no-account-free` |
 | Loose paper strips align into one ordered newspaper column beside a compass needle. | 13 | Image alt text explains the art. |
-| Loose chat fragments become one numbered reading order. | 8 | Figure caption. |
+| The reader numbers visible chat messages in their page order. | 10 | `message-headings` |
 | My checkout button works with a mouse, but keyboard focus disappears after the basket opens. | 15 | Sample content. |
 | Move focus to the basket heading when it opens. | 9 | Sample content. |
 | Return focus to the checkout button when it closes. | 9 | Sample content. |
@@ -29,7 +29,18 @@ Checked 2026-08-28 after polish round 3. Counts treat hyphenated terms, URLs, an
 | It does not store transcript text. | 6 | `no-transcript-storage` |
 | Read streaming chats without losing your place. | 8 | Footer description. |
 
-Labels and headings are direct: “Browser extension for screen-reader users,” “Preview of a stable transcript,” “How to turn a live chat into a transcript,” and “It reads the page you already opened.” Controls use result-naming verbs, including “Go to previous message” and “Go to next message.”
+Labels and headings are direct: “Browser extension for screen-reader users,” “Preview of a stable transcript,” “How to turn a live chat into a transcript,” “Navigate, save, copy, or export,” and “It reads the page you already opened.” Controls use result-naming verbs, including “Go to previous message” and “Go to next message.”
+
+## Privacy controls and extension popup
+
+| Sentence | Words | Claim or result |
+| --- | ---: | --- |
+| Disable a site from the extension popup to remove its access. | 11 | `site-disable-removes-access` |
+| Reset the demo from its top banner. | 7 | `demo-reset` |
+| Content stays in this browser. | 5 | `local-processing` |
+| Enable this site before opening the reader. | 7 | `site-consent` |
+
+The untestable sentence “Remove the extension to delete its local data” was removed. Browser-owned uninstall cleanup is no longer presented as a product guarantee.
 
 ## Install route
 

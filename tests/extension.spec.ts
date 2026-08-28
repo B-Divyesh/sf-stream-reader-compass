@@ -88,6 +88,101 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   }
 });
 
+test('@claim:site-disable-removes-access disables a site through the popup and removes its permission', async ({}, testInfo) => {
+  const shippedPath = path.resolve('.output/chrome-mv3');
+  const extensionPath = testInfo.outputPath('extension-with-pregranted-fixture');
+  await cp(shippedPath, extensionPath, { recursive: true });
+  const manifestPath = path.join(extensionPath, 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.host_permissions = ['http://127.0.0.1:4173/*'];
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  const profilePath = testInfo.outputPath('profile');
+
+  const seedContext = await chromium.launchPersistentContext(profilePath, {
+    headless: false,
+    args: [
+      '--headless=new',
+      `--disable-extensions-except=${extensionPath}`,
+      `--load-extension=${extensionPath}`
+    ]
+  });
+  let seedWorker = seedContext.serviceWorkers()[0];
+  if (!seedWorker) seedWorker = await seedContext.waitForEvent('serviceworker');
+  expect(await seedWorker.evaluate(async () => chrome.permissions.contains({ origins: ['http://127.0.0.1:4173/*'] }))).toBe(true);
+  await seedContext.close();
+
+  delete manifest.host_permissions;
+  manifest.version = '1.0.1';
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
+    headless: false,
+    args: [
+      '--headless=new',
+      `--disable-extensions-except=${extensionPath}`,
+      `--load-extension=${extensionPath}`
+    ]
+  });
+  try {
+    let worker = context.serviceWorkers()[0];
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).hostname;
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4173/?demo=1');
+    await page.bringToFront();
+    const tabId = await worker.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      return tabs[0]!.id!;
+    });
+    const popup = await context.newPage();
+    await popup.addInitScript(({ fixtureTabId, fixtureUrl }) => {
+      const query = chrome.tabs.query.bind(chrome.tabs);
+      chrome.tabs.query = (queryInfo) => queryInfo.active && queryInfo.currentWindow
+        ? Promise.resolve([{ id: fixtureTabId, url: fixtureUrl } as chrome.tabs.Tab])
+        : query(queryInfo);
+    }, { fixtureTabId: tabId, fixtureUrl: 'http://127.0.0.1:4173/?demo=1' });
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await expect(popup.locator('#site')).toHaveText('127.0.0.1');
+    await expect(popup.locator('#enable')).toHaveText('Enable on this site');
+    await expect(popup.locator('#open')).toBeHidden();
+    await popup.locator('#enable').click();
+    await expect(popup.locator('#status')).toHaveText('Reader enabled for this site only. Open it when the chat is ready.');
+    await expect(popup.locator('#enable')).toHaveText('Disable on this site');
+    await expect(popup.locator('#open')).toBeVisible();
+
+    const pattern = 'http://127.0.0.1:4173/*';
+    expect(await worker.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(true);
+    expect(await worker.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({
+      enabledOrigins: ['http://127.0.0.1:4173']
+    });
+
+    await worker.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
+    expect(await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
+    await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
+
+    await expect(popup.locator('#enable')).toHaveText('Disable on this site');
+    await popup.locator('#enable').click();
+    await expect(popup.locator('#status')).toHaveText('Reader disabled and site access removed.');
+    await expect(popup.locator('#enable')).toHaveText('Enable on this site');
+    expect(await worker.evaluate(async () => chrome.storage.sync.get('enabledOrigins'))).toEqual({ enabledOrigins: [] });
+    expect(await worker.evaluate(async (originPattern) => chrome.permissions.contains({ origins: [originPattern] }), pattern)).toBe(false);
+    await expect(page.locator('#stream-reader-compass-host')).toHaveCount(0);
+
+    await page.reload();
+    const injectionAllowed = await worker.evaluate(async (id) => {
+      try {
+        await chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] });
+        return true;
+      } catch {
+        return false;
+      }
+    }, tabId);
+    expect(injectionAllowed).toBe(false);
+    await expect(page.locator('#stream-reader-compass-host')).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
+});
+
 test('@claim:local-processing @claim:message-headings @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:pause-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
   const extensionPath = await fixtureExtensionPath(testInfo.outputPath.bind(testInfo));
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
@@ -139,12 +234,20 @@ test('@claim:local-processing @claim:message-headings @claim:text-export @claim:
       const root = host.shadowRoot!;
       return {
         count: root.querySelectorAll('article').length,
+        headings: Array.from(root.querySelectorAll('article h2')).map((heading) => heading.textContent?.trim()),
         bodies: Array.from(root.querySelectorAll('.body')).map((body) => body.textContent),
         duplicateCount: Array.from(root.querySelectorAll('.body')).filter((body) => body.textContent === 'Same visible reply').length,
         link: root.querySelector<HTMLAnchorElement>('a[href="https://www.w3.org/WAI/ARIA/"]')?.textContent
       };
     });
     expect(before.count).toBe(4);
+    expect(before.headings).toEqual([
+      'You — message 1 of 4',
+      'Response — message 2 of 4',
+      'Response — message 3 of 4',
+      'Response — message 4 of 4'
+    ]);
+    expect(before.bodies).toEqual(['Original A', 'Original B target WAI-ARIA reference', 'Same visible reply', 'Same visible reply']);
     expect(before.duplicateCount).toBe(2);
     expect(before.bodies.join('\n')).not.toContain('HIDDEN PRIVATE SECRET');
     expect(before.bodies.join('\n')).not.toContain('Copy this message');

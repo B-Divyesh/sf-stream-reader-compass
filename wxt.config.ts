@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: {
     name: 'Stream Reader Compass',
     short_name: 'Reader Compass',
-    description: 'Read streaming chats in a stable, semantic transcript.',
+    description: 'Read streaming chats with numbered headings and a saved place.',
     version: '1.0.0',
     icons: {
       16: 'icon/16.png',

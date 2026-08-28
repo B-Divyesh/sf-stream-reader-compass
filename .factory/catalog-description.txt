@@ -1,1 +1,1 @@
-Read streaming browser chats with lasting message headings and a saved place.
+Read streaming browser chats with numbered headings and a saved place.

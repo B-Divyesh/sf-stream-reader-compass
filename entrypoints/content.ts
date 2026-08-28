@@ -51,6 +51,7 @@ function makeStyles(): string {
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .links { margin: 16px 0 0; padding: 12px 0 0 20px; border-top: 1px dotted #76766d; }
     a { color: #171713; text-underline-offset: 3px; overflow-wrap: anywhere; }
+    .links a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
     .empty { margin: 48px auto; width: min(600px,calc(100% - 48px)); padding: 32px 0; border-block: 4px double #171713; }
     .empty h2 { font-size: 30px; }
     .help { color: #55554e; }
