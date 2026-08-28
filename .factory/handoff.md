@@ -20,7 +20,7 @@ The monochrome broadsheet identity, warm paper palette, yellow saved-place marke
 
 ## Exact verification
 
-Clean clone: `/tmp/stream-reader-compass-polish3-clean-L7Uhyc`.
+Final remote clone: `/tmp/stream-reader-compass-polish3-final-ApcAhw` at commit `1247fb0d011a30c4d6afac444389e867d7c37553`.
 
 - `npm ci`: passed; 272 packages audited, zero vulnerabilities.
 - Every one of the 17 `.factory/claims.json` commands: passed separately from the clean clone.

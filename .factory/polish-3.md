@@ -39,7 +39,7 @@ The packaged reader test still covers focus-preserving streamed updates, hidden-
 
 ## Verification evidence
 
-- Clean clone: `/tmp/stream-reader-compass-polish3-clean-L7Uhyc`.
+- Final remote clone: `/tmp/stream-reader-compass-polish3-final-ApcAhw` at commit `1247fb0d011a30c4d6afac444389e867d7c37553`.
 - Every one of the 17 exact commands in `.factory/claims.json` passed separately after `npm ci`.
 - Clean-clone `npm test`: 52/52 passed across desktop and 390 px mobile.
 - `npm run test:unit`: 5/5 passed; `npm run typecheck`, `npm run lint`, and `npm run build` passed.
