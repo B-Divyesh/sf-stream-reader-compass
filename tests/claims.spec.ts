@@ -18,6 +18,8 @@ test('@claim:demo-one-click-isolation opens sample data in one click and keeps o
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveURL('/?demo=1');
   await expect(page.getByRole('region', { name: 'Demo controls' })).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.getByRole('link', { name: 'Exit demo and install extension' })).toBeVisible();
+  await expect(page.getByText('Clears sample data and opens installation steps.')).toBeVisible();
   await expect(page.locator('.demo-message')).toHaveCount(4);
   await page.getByRole('button', { name: 'Save my place here' }).first().click();
   expect(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)))).toEqual({

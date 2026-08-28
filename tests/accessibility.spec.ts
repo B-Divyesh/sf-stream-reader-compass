@@ -55,6 +55,7 @@ test('the first screen states the job, audience, action, outcome, and three fact
   expect((await action.boundingBox())!.y).toBeLessThan(844);
   await expect(page.getByText('Opens a private sample transcript.')).toBeVisible();
   await expect(page.locator('.plain-facts li')).toHaveCount(3);
+  await expect(page.getByRole('heading', { level: 2, name: 'Preview of a stable transcript' })).toBeVisible();
 });
 
 test('skip link moves keyboard focus to the main landmark', async ({ page }) => {
