@@ -6,6 +6,7 @@ let paused = false;
 let observer: MutationObserver | null = null;
 let refreshTimer = 0;
 let currentResumeId: string | undefined;
+let closeCurrentReader: (() => void) | undefined;
 
 function pageKey(): string {
   return `resume:${location.origin}${location.pathname}`;
@@ -165,7 +166,9 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
     host.remove();
     document.documentElement.style.overflow = priorOverflow;
     previousFocus?.focus();
+    closeCurrentReader = undefined;
   };
+  closeCurrentReader = close;
 
   shadow.addEventListener('click', async (event) => {
     const button = (event.target as Element).closest<HTMLButtonElement>('button');
@@ -244,12 +247,17 @@ async function openReader(): Promise<{ ok: boolean; error?: string }> {
 }
 
 export default defineContentScript({
-  matches: ['http://*/*', 'https://*/*'],
+  registration: 'runtime',
   main() {
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (message?.type !== 'OPEN_READER') return;
-      openReader().then(sendResponse);
-      return true;
+      if (message?.type === 'OPEN_READER') {
+        openReader().then(sendResponse);
+        return true;
+      }
+      if (message?.type === 'CLOSE_READER') {
+        closeCurrentReader?.();
+        sendResponse({ ok: true });
+      }
     });
   }
 });

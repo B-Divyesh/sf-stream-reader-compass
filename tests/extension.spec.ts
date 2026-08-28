@@ -1,8 +1,22 @@
 import { chromium, expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+async function fixtureExtensionPath(outputPath: (name: string) => string): Promise<string> {
+  const shippedPath = path.resolve('.output/chrome-mv3');
+  const fixturePath = outputPath('extension-with-local-fixture-access');
+  await cp(shippedPath, fixturePath, { recursive: true });
+  const manifestPath = path.join(fixturePath, 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.host_permissions = ['http://127.0.0.1:4173/*'];
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  return fixturePath;
+}
+
 test('@claim:site-consent @claim:no-transcript-storage blocks reading until enablement and keeps message text out of storage', async ({}, testInfo) => {
-  const extensionPath = path.resolve('.output/chrome-mv3');
+  const shippedPath = path.resolve('.output/chrome-mv3');
+  const extensionPath = await fixtureExtensionPath(testInfo.outputPath.bind(testInfo));
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
     headless: false,
     args: [
@@ -14,17 +28,37 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   try {
     let worker = context.serviceWorkers()[0];
     if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).hostname;
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    const popupAxe = await new AxeBuilder({ page: popup as never }).analyze();
+    expect(popupAxe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+    await popup.close();
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:4173/demo');
+    await page.goto('http://127.0.0.1:4173/?demo=1');
     const tabId = await worker.evaluate(async () => {
-      const tabs = await chrome.tabs.query({ url: 'http://127.0.0.1:4173/demo' });
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       return tabs[0]!.id!;
     });
-    const blocked = await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId);
-    expect(blocked).toEqual({ ok: false, error: 'Enable the reader for this site first.' });
+    const manifest = JSON.parse(await readFile(path.join(shippedPath, 'manifest.json'), 'utf8'));
+    expect(manifest.host_permissions).toBeUndefined();
+    expect(manifest.content_scripts).toBeUndefined();
+    expect(manifest.optional_host_permissions).toEqual(['http://*/*', 'https://*/*']);
+    expect(manifest.permissions).toContain('scripting');
+    expect(await worker.evaluate(async () => chrome.scripting.getRegisteredContentScripts())).toEqual([]);
+    const receiverBeforeEnablement = await worker.evaluate(async (id) => {
+      try {
+        await chrome.tabs.sendMessage(id, { type: 'OPEN_READER' });
+        return true;
+      } catch {
+        return false;
+      }
+    }, tabId);
+    expect(receiverBeforeEnablement).toBe(false);
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(0);
 
     await worker.evaluate(async () => chrome.storage.sync.set({ enabledOrigins: ['http://127.0.0.1:4173'] }));
+    await worker.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
     const opened = await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId);
     expect(opened).toEqual({ ok: true });
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
@@ -38,9 +72,10 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
     await page.locator('#stream-reader-compass-host').evaluate((host) => (host.shadowRoot!.querySelector('button.close') as HTMLButtonElement).click());
     await page.goto('http://127.0.0.1:4173/privacy');
     const privacyTab = await worker.evaluate(async () => {
-      const tabs = await chrome.tabs.query({ url: 'http://127.0.0.1:4173/privacy' });
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       return tabs[0]!.id!;
     });
+    await worker.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), privacyTab);
     await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), privacyTab);
     const emptyHeading = await page.locator('#stream-reader-compass-host').evaluate((host) => host.shadowRoot!.querySelector('.empty h2')?.textContent);
     expect(emptyHeading).toBe('No chat messages found');
@@ -49,8 +84,8 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   }
 });
 
-test('@claim:local-processing @claim:semantic-record @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:no-remote-services @claim:escape-close preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
-  const extensionPath = path.resolve('.output/chrome-mv3');
+test('@claim:local-processing @claim:semantic-record @claim:text-export @claim:copy-controls @claim:link-lists @claim:resume-marker @claim:polite-updates @claim:no-remote-services @claim:escape-close @claim:heading-key-navigation preserves real-reader records and focus while a page streams', async ({}, testInfo) => {
+  const extensionPath = await fixtureExtensionPath(testInfo.outputPath.bind(testInfo));
   const context = await chromium.launchPersistentContext(testInfo.outputPath('profile'), {
     headless: false,
     args: [
@@ -68,22 +103,33 @@ test('@claim:local-processing @claim:semantic-record @claim:text-export @claim:c
     page.on('request', (request) => {
       if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') offOriginRequests.push(request.url());
     });
-    await page.goto('http://127.0.0.1:4173/demo');
-    await page.setContent(`<main>
+    await page.goto('http://127.0.0.1:4173/?demo=1');
+    await page.setContent(`<!doctype html><html lang="en"><head><title>Streaming chat fixture</title></head><body><main>
       <article data-message-author-role="user"><p>Original A</p></article>
       <article data-message-author-role="assistant"><p>Original B target</p><a href="https://www.w3.org/WAI/ARIA/">WAI-ARIA reference</a><button>Copy this message</button><button>Save my place here</button></article>
       <article data-message-author-role="assistant"><p>Same visible reply</p></article>
       <article data-message-author-role="assistant"><p>Same visible reply</p></article>
       <article data-message-author-role="assistant" style="display:none"><p>HIDDEN PRIVATE SECRET</p></article>
-    </main>`);
+    </main></body></html>`);
     await worker.evaluate(async () => chrome.storage.sync.set({ enabledOrigins: ['http://127.0.0.1:4173'] }));
     const tabId = await worker.evaluate(async () => {
-      const tabs = await chrome.tabs.query({ url: 'http://127.0.0.1:4173/demo' });
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       return tabs[0]!.id!;
     });
+    await worker.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
+    await context.setOffline(true);
     expect(await worker.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
     const reader = page.locator('#stream-reader-compass-host');
     await expect(reader).toHaveCount(1);
+    const readerAxe = await new AxeBuilder({ page: page as never }).analyze();
+    expect(readerAxe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+
+    await page.keyboard.press('j');
+    expect(await reader.evaluate((host) => host.shadowRoot!.activeElement?.textContent)).toContain('message 1 of 4');
+    await page.keyboard.press('j');
+    expect(await reader.evaluate((host) => host.shadowRoot!.activeElement?.textContent)).toContain('message 2 of 4');
+    await page.keyboard.press('k');
+    expect(await reader.evaluate((host) => host.shadowRoot!.activeElement?.textContent)).toContain('message 1 of 4');
 
     const before = await reader.evaluate((host) => {
       const root = host.shadowRoot!;

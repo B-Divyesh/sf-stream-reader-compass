@@ -14,8 +14,8 @@ export default defineConfig({
       48: 'icon/48.png',
       128: 'icon/128.png'
     },
-    permissions: ['storage', 'activeTab'],
-    host_permissions: ['http://*/*', 'https://*/*'],
+    permissions: ['storage', 'activeTab', 'scripting'],
+    optional_host_permissions: ['http://*/*', 'https://*/*'],
     commands: {
       'open-reader': {
         suggested_key: { default: 'Alt+Shift+R' },

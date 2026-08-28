@@ -1,0 +1,1 @@
+Read streaming browser chats as stable, keyboard-friendly transcripts without losing your place.

@@ -2,7 +2,7 @@ export function header(active = ''): string {
   return `<header class="site-header">
     <a class="wordmark" href="/" data-route>Stream Reader <span>Compass</span></a>
     <nav aria-label="Main navigation">
-      <a href="/demo" data-route ${active === 'demo' ? 'aria-current="page"' : ''}>Demo</a>
+      <a href="/?demo=1" data-route ${active === 'demo' ? 'aria-current="page"' : ''}>Demo</a>
       <a href="/#how" ${active === 'how' ? 'aria-current="page"' : ''}>How it works</a>
       <a href="/privacy" data-route ${active === 'privacy' ? 'aria-current="page"' : ''}>Privacy</a>
     </nav>

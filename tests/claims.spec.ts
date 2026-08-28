@@ -12,6 +12,23 @@ test('demo keeps the complete sample flow on the same origin', async ({ page }) 
   expect(offOrigin).toEqual([]);
 });
 
+test('@claim:demo-one-click-isolation opens sample data in one click and keeps only demo keys', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('real:untouched', 'keep'));
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL('/?demo=1');
+  await expect(page.getByRole('region', { name: 'Demo controls' })).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.locator('.demo-message')).toHaveCount(4);
+  await page.getByRole('button', { name: 'Save my place here' }).first().click();
+  expect(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)))).toEqual({
+    'demo:resume': 'sample-1',
+    'real:untouched': 'keep'
+  });
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  expect(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)))).toEqual({ 'real:untouched': 'keep' });
+  await expect(page.locator('.demo-message')).toHaveCount(4);
+});
+
 test('demo exposes one stable heading and anchor per message', async ({ page }) => {
   await page.goto('/demo');
   const messages = page.locator('.demo-message');

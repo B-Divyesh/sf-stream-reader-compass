@@ -6,26 +6,33 @@ import { footer, header } from './templates';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const routeStatus = document.querySelector<HTMLElement>('.route-status')!;
 
-const pageDetails: Record<string, { title: string; description: string }> = {
+const siteOrigin = 'https://stream-reader-compass.sociobot.in';
+
+const pageDetails: Record<string, { title: string; description: string; canonical: string }> = {
   '/': {
     title: 'Stream Reader Compass — Read streaming chats',
-    description: 'Turn long browser chats into a stable transcript with headings, saved places, copy, and text export.'
+    description: 'Turn long browser chats into a stable transcript with headings, saved places, copy, and text export.',
+    canonical: '/'
   },
   '/demo': {
     title: 'Demo — Stream Reader Compass',
-    description: 'Try a private sample transcript with heading navigation, a saved place, copy, and text export.'
+    description: 'Try a private sample transcript with heading navigation, a saved place, copy, and text export.',
+    canonical: '/?demo=1'
   },
   '/privacy': {
     title: 'Privacy — Stream Reader Compass',
-    description: 'How Stream Reader Compass handles site settings, resume markers, and conversation text.'
+    description: 'How Stream Reader Compass handles site settings, resume markers, and conversation text.',
+    canonical: '/privacy'
   },
   '/terms': {
     title: 'Terms — Stream Reader Compass',
-    description: 'Terms for the free Stream Reader Compass browser extension and website.'
+    description: 'Terms for the free Stream Reader Compass browser extension and website.',
+    canonical: '/terms'
   },
   '/404': {
     title: 'Page not found — Stream Reader Compass',
-    description: 'This Stream Reader Compass page could not be found.'
+    description: 'This Stream Reader Compass page could not be found.',
+    canonical: '/404'
   }
 };
 
@@ -33,7 +40,14 @@ function setMeta(path: string): void {
   const details = pageDetails[path] || pageDetails['/404']!;
   document.title = details.title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = details.description;
-  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://stream-reader-compass.sociobot.in${path}`;
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `${siteOrigin}${details.canonical}`;
+  for (const selector of ['meta[property="og:title"]', 'meta[name="twitter:title"]']) {
+    document.querySelector<HTMLMetaElement>(selector)!.content = details.title;
+  }
+  for (const selector of ['meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+    document.querySelector<HTMLMetaElement>(selector)!.content = details.description;
+  }
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')!.content = `${siteOrigin}${details.canonical}`;
 }
 
 function landingPage(): string {
@@ -45,7 +59,7 @@ function landingPage(): string {
           <h1 id="hero-title" tabindex="-1">Read streaming chats without losing your place</h1>
           <p class="dek">For screen-reader users who need stable headings, links, and copy controls in long browser chats.</p>
           <div class="primary-row">
-            <a class="button" href="/demo" data-route>Try it with sample data</a>
+            <a class="button" href="/?demo=1" data-route>Try it with sample data</a>
             <span>Opens a private sample transcript.</span>
           </div>
           <ul class="plain-facts" aria-label="Product facts">
@@ -65,12 +79,12 @@ function landingPage(): string {
       </section>
 
       <section class="preview" aria-labelledby="preview-title">
-        <div class="section-heading"><p class="eyebrow">Reader specimen · 04 messages</p><h2 id="preview-title">A transcript that holds still</h2></div>
+        <div class="section-heading"><p class="eyebrow">Reader specimen · 04 messages</p><h2 id="preview-title">Preview of a stable transcript</h2></div>
         <div class="preview-sheet">
           <article><span class="folio" aria-hidden="true">01</span><h3>You — message 1 of 4</h3><p>My checkout button works with a mouse, but keyboard focus disappears after the basket opens.</p></article>
           <article class="marked"><span class="folio" aria-hidden="true">02</span><h3>Support response — message 2 of 4</h3><p>Move focus to the basket heading when it opens. Return focus to the checkout button when it closes.</p><p class="marker-label">Saved place</p></article>
         </div>
-        <a class="text-link" href="/demo" data-route>Open the working transcript demo →</a>
+        <a class="text-link" href="/?demo=1" data-route>Open the working transcript demo →</a>
       </section>
 
       <section id="how" class="how" aria-labelledby="how-title">
@@ -100,7 +114,7 @@ function landingPage(): string {
 }
 
 function demoPage(): string {
-  return `<div class="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><a href="/#install" data-start-real>Start for real</a></div></div>
+  return `<div class="demo-banner" role="region" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved</strong><div><button type="button" data-demo-reset>Reset demo</button><span class="demo-exit"><a href="/#install" data-start-real>Exit demo and install extension</a><small>Clears sample data and opens installation steps.</small></span></div></div>
     ${header('demo')}
     <main id="main" class="demo-main" tabindex="-1">
       <section class="demo-intro"><p class="eyebrow">Sample support chat · local sandbox</p><h1 tabindex="-1">Read this conversation in order</h1><p>Use headings or the message buttons. New replies never move your focus.</p></section>
@@ -125,10 +139,10 @@ function privacyPage(): string {
   return `${header('privacy')}<main id="main" class="legal" tabindex="-1"><p class="eyebrow">Privacy notice · effective 28 August 2026</p><h1 tabindex="-1">Your conversation stays in your browser</h1>
     <p class="lede">Stream Reader Compass processes visible page content on your device. It does not send conversation text to us.</p>
     <h2>What the extension reads</h2><p>After you enable a site and open the reader, the extension reads visible message text and links from that page. It uses them to make the transcript you see.</p>
-    <h2>What the extension stores</h2><p>Your browser stores the list of enabled site origins in extension sync storage. It stores one message identifier per page when you save your place. Transcript text is not stored.</p>
-    <h2>What the demo stores</h2><p>The demo uses keys beginning with <code>demo:</code> in local storage. Reset demo or choose Start for real to remove them. It never reads extension data.</p>
+    <h2>What the extension stores</h2><p>Your browser stores the list of enabled site origins in extension sync storage. Chrome also stores the permission you grant for each enabled site. It stores one message identifier per page when you save your place. Transcript text is not stored.</p>
+    <h2>What the demo stores</h2><p>The demo uses keys beginning with <code>demo:</code> in local storage. Reset demo or exit to install to remove them. It never reads extension data.</p>
     <h2>What leaves your device</h2><p>No conversation text, links, resume markers, or enabled site list is sent to Stream Reader Compass. The website loads only its own files. There is no analytics script.</p>
-    <h2>Your controls</h2><p>Disable a site from the extension popup. Remove the extension to delete its local data. Reset the demo from its top banner.</p>
+    <h2>Your controls</h2><p>Disable a site from the extension popup to remove its access. Remove the extension to delete its local data. Reset the demo from its top banner.</p>
     <h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p>
   </main>${footer()}`;
 }
@@ -144,7 +158,7 @@ function termsPage(): string {
 }
 
 function notFoundPage(): string {
-  return `${header()}<main id="main" class="legal not-found" tabindex="-1"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">This page is off the record</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
+  return `${header()}<main id="main" class="legal not-found" tabindex="-1"><p class="eyebrow">Edition 404</p><h1 tabindex="-1">Page not found</h1><p>The address does not match a page in this edition.</p><a class="button" href="/" data-route>Return to the front page</a></main>${footer()}`;
 }
 
 function escapeHtml(value: string): string {
@@ -259,7 +273,9 @@ function bindDemo(): void {
 }
 
 function demoKeyHandler(event: KeyboardEvent): void {
-  if (location.pathname !== '/demo' || /input|textarea/i.test((event.target as Element).tagName)) return;
+  const isDemo = location.pathname === '/demo'
+    || (location.pathname === '/' && new URLSearchParams(location.search).get('demo') === '1');
+  if (!isDemo || /input|textarea/i.test((event.target as Element).tagName)) return;
   if (event.key.toLowerCase() === 'j') moveMessage(1);
   if (event.key.toLowerCase() === 'k') moveMessage(-1);
 }
@@ -267,13 +283,14 @@ function demoKeyHandler(event: KeyboardEvent): void {
 function render(path = location.pathname): void {
   document.removeEventListener('keydown', demoKeyHandler);
   const cleanPath = path.replace(/\/$/, '') || '/';
-  setMeta(cleanPath);
-  if (cleanPath === '/demo') app.innerHTML = demoPage();
+  const route = cleanPath === '/' && new URLSearchParams(location.search).get('demo') === '1' ? '/demo' : cleanPath;
+  setMeta(route);
+  if (route === '/demo') app.innerHTML = demoPage();
   else if (cleanPath === '/privacy') app.innerHTML = privacyPage();
   else if (cleanPath === '/terms') app.innerHTML = termsPage();
   else if (cleanPath === '/') app.innerHTML = landingPage();
   else app.innerHTML = notFoundPage();
-  if (cleanPath === '/demo') bindDemo();
+  if (route === '/demo') bindDemo();
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
 }
 

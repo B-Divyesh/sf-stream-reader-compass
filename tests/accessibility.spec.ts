@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-for (const route of ['/', '/demo', '/privacy', '/terms', '/missing-page']) {
+for (const route of ['/', '/?demo=1', '/demo', '/privacy', '/terms', '/missing-page', '/404.html']) {
   test(`${route} has one h1, landmarks, and no serious accessibility issues`, async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
@@ -20,7 +20,8 @@ for (const route of ['/', '/demo', '/privacy', '/terms', '/missing-page']) {
 test('unknown routes show the designed 404 page', async ({ page }) => {
   await page.goto('/missing-page');
   await expect(page).toHaveTitle('Page not found — Stream Reader Compass');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is off the record');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link').allTextContents()).resolves.toEqual(['Demo', 'How it works', 'Privacy']);
   await expect(page.getByRole('link', { name: 'Return to the front page' })).toBeVisible();
 });
 
@@ -37,11 +38,23 @@ test('J and K move through transcript headings', async ({ page }) => {
 test('route navigation moves focus to the new page heading', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
-  await expect(page).toHaveURL('/demo');
+  await expect(page).toHaveURL('/?demo=1');
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
   await page.goBack();
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+});
+
+test('the first screen states the job, audience, action, outcome, and three facts', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Read streaming chats without losing your place');
+  await expect(page.getByText('For screen-reader users who need stable headings, links, and copy controls in long browser chats.')).toBeVisible();
+  const action = page.getByRole('link', { name: 'Try it with sample data' });
+  await expect(action).toBeVisible();
+  expect((await action.boundingBox())!.y).toBeLessThan(844);
+  await expect(page.getByText('Opens a private sample transcript.')).toBeVisible();
+  await expect(page.locator('.plain-facts li')).toHaveCount(3);
 });
 
 test('skip link moves keyboard focus to the main landmark', async ({ page }) => {
@@ -75,5 +88,31 @@ test('internal site links resolve', async ({ page, request }) => {
   for (const href of [...new Set(hrefs)].filter((href) => href.startsWith('/'))) {
     const response = await request.get(href);
     expect(response.ok(), `${href} should resolve`).toBeTruthy();
+  }
+});
+
+test('every route sets its own title, canonical URL, and social metadata', async ({ page }) => {
+  const routes: Array<[string, string, string]> = [
+    ['/', 'Stream Reader Compass — Read streaming chats', '/'],
+    ['/?demo=1', 'Demo — Stream Reader Compass', '/?demo=1'],
+    ['/privacy', 'Privacy — Stream Reader Compass', '/privacy'],
+    ['/terms', 'Terms — Stream Reader Compass', '/terms'],
+    ['/missing-page', 'Page not found — Stream Reader Compass', '/404']
+  ];
+  for (const [route, title, canonical] of routes) {
+    await page.goto(route);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://stream-reader-compass.sociobot.in${canonical}`);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
+  }
+});
+
+test('legal routes and the static 404 keep the complete site navigation', async ({ page }) => {
+  for (const route of ['/privacy', '/terms', '/404.html']) {
+    await page.goto(route);
+    await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link').allTextContents()).resolves.toEqual(['Demo', 'How it works', 'Privacy']);
+    await expect(page.getByRole('navigation', { name: 'Footer navigation' }).getByRole('link', { name: 'Privacy' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Footer navigation' }).getByRole('link', { name: 'Terms' })).toBeVisible();
   }
 });

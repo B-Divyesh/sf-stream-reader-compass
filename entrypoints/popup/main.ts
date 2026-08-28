@@ -8,6 +8,10 @@ const status = document.querySelector<HTMLElement>('#status')!;
 let tabId: number | undefined;
 let origin: string | null = null;
 
+function permissionPattern(value: string): string {
+  return `${value}/*`;
+}
+
 async function currentOrigins(): Promise<string[]> {
   const result = await chrome.storage.sync.get('enabledOrigins');
   return Array.isArray(result.enabledOrigins) ? result.enabledOrigins : [];
@@ -23,7 +27,8 @@ async function refresh(): Promise<void> {
     return;
   }
   siteText.textContent = new URL(origin).hostname;
-  const enabled = (await currentOrigins()).includes(origin);
+  const enabled = (await currentOrigins()).includes(origin)
+    && await chrome.permissions.contains({ origins: [permissionPattern(origin)] });
   enableButton.textContent = enabled ? 'Disable on this site' : 'Enable on this site';
   enableButton.dataset.enabled = String(enabled);
   openButton.hidden = !enabled;
@@ -33,16 +38,28 @@ enableButton.addEventListener('click', async () => {
   if (!origin) return;
   const origins = await currentOrigins();
   const enabled = enableButton.dataset.enabled === 'true';
-  const next = enabled ? origins.filter((item) => item !== origin) : [...new Set([...origins, origin])];
-  await chrome.storage.sync.set({ enabledOrigins: next });
-  status.textContent = enabled ? 'Reader disabled for this site.' : 'Reader enabled. Open it when the chat is ready.';
+  const pattern = permissionPattern(origin);
+  if (!enabled) {
+    const granted = await chrome.permissions.request({ origins: [pattern] });
+    if (!granted) {
+      status.textContent = 'Site access was not granted. Choose Enable on this site to try again.';
+      return;
+    }
+    await chrome.storage.sync.set({ enabledOrigins: [...new Set([...origins, origin])] });
+    status.textContent = 'Reader enabled for this site only. Open it when the chat is ready.';
+  } else {
+    if (tabId) await chrome.tabs.sendMessage(tabId, { type: 'CLOSE_READER' }).catch(() => undefined);
+    await chrome.storage.sync.set({ enabledOrigins: origins.filter((item) => item !== origin) });
+    await chrome.permissions.remove({ origins: [pattern] });
+    status.textContent = 'Reader disabled and site access removed.';
+  }
   await refresh();
 });
 
 openButton.addEventListener('click', async () => {
   if (!tabId) return;
   try {
-    const response = await chrome.tabs.sendMessage(tabId, { type: 'OPEN_READER' });
+    const response = await chrome.runtime.sendMessage({ type: 'OPEN_READER_IN_TAB', tabId });
     if (!response?.ok) throw new Error(response?.error || 'Reader could not open.');
     window.close();
   } catch {

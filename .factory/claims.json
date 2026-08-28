@@ -63,6 +63,13 @@
     "sandbox": "fresh browser context; save a place and add a reply; reset; assert four messages and no demo storage keys"
   },
   {
+    "id": "demo-one-click-isolation",
+    "claim": "The sample chat opens in one click and uses only demo-prefixed storage.",
+    "where": "landing action, README, demo banner",
+    "test": "npm test -- --grep @claim:demo-one-click-isolation",
+    "sandbox": "fresh browser context; enter from the landing action; assert ?demo=1, four messages, isolated demo storage, reset cleanup, and untouched non-demo storage"
+  },
+  {
     "id": "no-account-free",
     "claim": "No account is needed. Free to use.",
     "where": "landing facts",
@@ -96,5 +103,12 @@
     "where": "README",
     "test": "npm test -- --grep @claim:escape-close",
     "sandbox": "fresh browser extension profile; open the reader, press Escape, and assert the reader host is removed"
+  },
+  {
+    "id": "heading-key-navigation",
+    "claim": "J and K move between message headings.",
+    "where": "README, demo keyboard help",
+    "test": "npm test -- --grep @claim:heading-key-navigation",
+    "sandbox": "fresh browser extension profile with sample messages; open the injected reader; press J, J, K; assert heading focus moves forward, forward, and back"
   }
 ]
