@@ -44,6 +44,12 @@ The exact production command is `npm run build`. It creates:
 
 The website loads scripts, styles, and fonts only from its own domain. The generated hero source and prompt are in `assets/src/`.
 
+## Deploy
+
+Run `npm run build`, then publish `dist/site/` to a static host that supports the included routing configuration.
+
+After deployment, run `npm run verify:live -- https://your-host.example`. It checks routes, metadata, accessibility, mobile layout, demo isolation, links, and reduced motion.
+
 ## Privacy and limits
 
 Your enabled sites use Chrome sync storage. Chrome stores each granted site permission. Your saved place uses local extension storage. Transcript text is never stored. See `/privacy` for the full notice and `/terms` for terms.

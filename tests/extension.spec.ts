@@ -142,6 +142,8 @@ test('@claim:site-disable-removes-access disables a site through the popup and r
     }, { fixtureTabId: tabId, fixtureUrl: 'http://127.0.0.1:4173/?demo=1' });
     await popup.reload();
     await expect(popup.locator('#site')).toHaveText('127.0.0.1');
+    expect(await popup.evaluate(() => chrome.runtime.getManifest().host_permissions)).toBeUndefined();
+    expect(await popup.evaluate(() => chrome.runtime.getManifest().optional_host_permissions)).toEqual(['http://*/*', 'https://*/*']);
     await expect(popup.locator('#enable')).toHaveText('Enable on this site');
     await expect(popup.locator('#open')).toBeHidden();
     await popup.locator('#enable').click();

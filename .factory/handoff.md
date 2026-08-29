@@ -1,42 +1,57 @@
-# Stream Reader Compass — adversarial review 4 handoff
+# Stream Reader Compass — polish round 4 handoff
 
 ## Outcome
 
-Adversarial review 4 is complete against production and commit `d587207bd40225d8e830fc78ef1695b0540f3e78`. Verdict: **FAIL** with four findings in `.factory/review-4.md`.
+Perfection-loop round 4 is complete. All four findings in `.factory/review-4.md` are closed, and every finding from reviews 1–3 and the earlier verification reports was rechecked. No known product, test, accessibility, privacy, routing, mobile, or deployment gap remains.
 
-No product code was modified. The remaining work is:
+Production: <https://stream-reader-compass.sociobot.in>
 
-- add claims and packaged-extension tests for disabling site access and uninstall data deletion, or remove those privacy statements;
-- replace the generic **Read and act** heading;
-- replace “Loose chat fragments become one numbered reading order” with literal product copy.
+Product repair commits: `e9b2302cd2653dc0ff9c42d61b46e8eed828ce96` and `dafa11a20319a7063f01940dafc514feb0f9cc91`.
 
-## Verification performed
+## What changed
 
-- Fresh mobile 390 × 844 and desktop 1440 × 900 cold reads.
-- One-click demo entry, realistic sample, banner, reset, exit, Back focus, storage isolation, and same-origin request logging.
-- Every one of the 17 `.factory/claims.json` commands separately from clean clone `/tmp/stream-reader-compass-review4-clean-fVvbwv`.
-- Full clean-clone suite: 52/52 Playwright tests and 5/5 unit tests.
-- Typecheck, lint, build, and full/production dependency audits.
-- Live route metadata, one-h1/main/lang checks, link crawl, touch targets, reduced motion, console errors, HTTP 404, security headers, and asset delivery.
-- Factory `verify-url.sh` and standalone Axe CLI on home, demo, install, privacy, and terms.
-- Live ZIP comparison against the clean build; both SHA-256 values are `3cde1dfcc220f2c112421122b4fcc9b1f821ca4e90b3c8514238771da08c1a01`.
-- All findings from reviews 1–3 and earlier verification reports were rechecked live and in current code or the byte-identical package; none regressed.
+- Added `site-disable-removes-access` and a packaged-extension test for popup enablement, reader use, permission removal, sync cleanup, reader closure, and blocked reinjection.
+- Made permission-removal failure explicit instead of reporting false success.
+- Removed the untestable browser-uninstall deletion promise.
+- Replaced **Read and act** with **Navigate, save, copy, or export**.
+- Replaced the hero metaphor with the literal numbered-page-order result and strengthened `message-headings` to prove it.
+- Fixed the popup stylesheet so **Open transcript reader** remains hidden before enablement.
+- Raised popup and extension-reader link targets to the 44 px accessibility baseline.
+- Added `npm run verify:live -- <url> [evidence-dir]` for repeatable post-deploy checks.
+- Updated the catalog description and copy audit.
 
-## Reproduce
+## Verification
+
+Clean remote clone: `/tmp/stream-reader-compass-polish4-clean-8HWzBX` at `dafa11a20319a7063f01940dafc514feb0f9cc91`.
 
 ```sh
 npm ci
-npm test
-npm run test:unit
-npm run typecheck
-npm run lint
-npm run build
-npm audit --audit-level=high
-npm audit --omit=dev --audit-level=high
+# Run every `test` command in .factory/claims.json separately (18/18 passed).
+npm test                         # 53/53 passed
+npm run test:unit                # 5/5 passed
+npm run typecheck                # passed
+npm run lint                     # passed
+npm run build                    # passed; dist/site and extension ZIP produced
+npm audit --audit-level=high     # zero vulnerabilities
+npm audit --omit=dev --audit-level=high # zero vulnerabilities
+npm run verify:live -- https://stream-reader-compass.sociobot.in .factory/evidence/polish-4
 ```
 
-Run each `test` command in `.factory/claims.json` separately from a clean clone. Use `https://stream-reader-compass.sociobot.in/?demo=1` for the live sandbox.
+Two clean builds produced the same extension ZIP SHA-256: `ef45cf975dd8e9086cdb99812b6353430c9c26149acec6a7c09dd47581efb9cc`. The production download has the same hash.
 
-## Known gaps
+Post-deploy checks passed for home, both demo URLs, install, privacy, terms, and an unknown route. They covered exact titles and metadata, one h1/main, focus, Back, same-origin requests, demo namespace/reset, 44 px controls, mobile overflow, reduced motion, serious/critical Axe findings, legal links, security/cache headers, AVIF MIME, and HTTP 404 behavior. Factory `verify-url.sh` also passed five public routes with zero console errors.
 
-The four review findings remain open. All listed claim tests and technical quality gates pass, but the two privacy-control promises are outside the claim inventory, so the release cannot receive a zero-finding verdict.
+Live Lighthouse scored 100 performance, 100 accessibility, 100 best practices, and 100 SEO. LCP was 1.276 s, TBT 4 ms, CLS 0, and transfer 88,595 bytes. Initial JS is 18,084 bytes raw / 5,943 gzip; CSS is 10,592 bytes raw / 3,164 gzip; the mobile AVIF is 19,746 bytes; no web fonts load.
+
+Deployment completed 2026-08-29 through the configured Azure Static Web Apps work order target `sf-stream-reader-compass`. The production environment reports `Ready`, and the custom domain returned the repaired product after upload.
+
+## Evidence
+
+- Finding map: `.factory/polish-4.md`
+- Copy audit: `.factory/copy-audit.md`
+- Demo contract: `.factory/demo.md`
+- Screenshots: `.factory/evidence/polish-4/live-home-mobile.png`, `live-home-desktop.png`, `live-demo-mobile.png`, `live-privacy-desktop.png`, and `live-404-desktop.png`
+
+## Known gaps and next steps
+
+None. No finding is deferred.

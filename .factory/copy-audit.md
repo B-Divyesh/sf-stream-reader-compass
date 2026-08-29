@@ -83,6 +83,9 @@ The route has the direct heading “Install the extension.” Public copy does n
 | The exact production command is npm run build. | 8 | Build instruction. |
 | The website loads scripts, styles, and fonts only from its own domain. | 11 | `site-self-contained` |
 | The generated hero source and prompt are in assets/src/. | 9 | Asset provenance. |
+| Run npm run build, then publish dist/site/ to a static host that supports the included routing configuration. | 16 | Deployment instruction. |
+| After deployment, run npm run verify:live -- https://your-host.example. | 7 | Verification instruction. |
+| It checks routes, metadata, accessibility, mobile layout, demo isolation, links, and reduced motion. | 13 | Verification scope. |
 | Your enabled sites use Chrome sync storage. | 7 | Storage disclosure. |
 | Chrome stores each granted site permission. | 6 | Storage disclosure. |
 | Your saved place uses local extension storage. | 7 | Storage disclosure. |

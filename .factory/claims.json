@@ -88,7 +88,7 @@
     "claim": "Disabling a site removes its browser access.",
     "where": "privacy notice, extension popup",
     "test": "npm test -- --grep @claim:site-disable-removes-access",
-    "sandbox": "fresh browser extension profile; enable the fixture origin through the popup, disable it, assert its sync entry and optional permission are removed, then assert the reader cannot open"
+    "sandbox": "fresh browser profile with a pre-granted fixture host; use the shipped optional-permission manifest and popup to enable then disable it; assert sync and permission removal and blocked reinjection"
   },
   {
     "id": "no-transcript-storage",

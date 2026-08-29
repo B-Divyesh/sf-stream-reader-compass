@@ -14,6 +14,7 @@
     "build": "npm run build:extension && npm run package:extension && npm run build:site",
     "test": "playwright test",
     "test:unit": "wxt prepare && vitest run --config vitest.config.ts",
+    "verify:live": "node scripts/verify-live.mjs",
     "typecheck": "wxt prepare && tsc --noEmit",
     "lint": "wxt prepare && tsc --noEmit"
   },
