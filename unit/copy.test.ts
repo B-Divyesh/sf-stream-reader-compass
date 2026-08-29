@@ -31,12 +31,14 @@ describe('plain-language release copy', () => {
     expect(site).not.toContain('Read and act');
     expect(site).not.toContain('Loose chat fragments');
     expect(site).not.toContain('Remove the extension to delete its local data');
+    expect(site).toContain('Your enabled sites use Chrome sync storage. Chrome also stores the permission you grant for each enabled site. Your saved place uses local extension storage.');
+    expect(readme).toContain('Your enabled sites use Chrome sync storage. Chrome stores each granted site permission. Your saved place uses local extension storage.');
   });
 
   test('keeps the catalog description verb-first and within 120 characters', () => {
     const description = readFileSync('.factory/catalog-description.txt', 'utf8').trim();
     expect(description.length).toBeLessThanOrEqual(120);
-    expect(description).toMatch(/^Read\b/);
+    expect(description).toMatch(/^Keep\b/);
   });
 
   test('lists each public claim once and maps it to exactly one tagged test', () => {

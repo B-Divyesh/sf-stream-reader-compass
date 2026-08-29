@@ -18,7 +18,7 @@ const routes = [
   ['/install', 'Install — Stream Reader Compass', 200],
   ['/privacy', 'Privacy — Stream Reader Compass', 200],
   ['/terms', 'Terms — Stream Reader Compass', 200],
-  ['/missing-polish-4', 'Page not found — Stream Reader Compass', 404]
+  ['/missing-polish-5', 'Page not found — Stream Reader Compass', 404]
 ];
 
 const browser = await chromium.launch({ headless: true });
@@ -115,10 +115,11 @@ try {
   const privacyPage = await privacyContext.newPage();
   await privacyPage.goto(new URL('/privacy', baseUrl).href, { waitUntil: 'networkidle' });
   const privacyText = await privacyPage.locator('main').innerText();
+  check(privacyText.includes('Your enabled sites use Chrome sync storage. Chrome also stores the permission you grant for each enabled site. Your saved place uses local extension storage.'), 'Tested storage-location disclosure is absent');
   check(privacyText.includes('Disable a site from the extension popup to remove its access.'), 'Tested disable control is absent');
   check(!privacyText.includes('Remove the extension to delete its local data.'), 'Untested uninstall promise remains');
   await privacyPage.screenshot({ path: path.join(evidenceDir, 'live-privacy-desktop.png'), fullPage: true });
-  await privacyPage.goto(new URL('/missing-polish-4', baseUrl).href, { waitUntil: 'networkidle' });
+  await privacyPage.goto(new URL('/missing-polish-5', baseUrl).href, { waitUntil: 'networkidle' });
   await privacyPage.screenshot({ path: path.join(evidenceDir, 'live-404-desktop.png'), fullPage: true });
   await privacyContext.close();
   results.push('privacy control wording and real 404: PASS');

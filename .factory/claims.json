@@ -91,6 +91,13 @@
     "sandbox": "fresh browser profile with a pre-granted fixture host; use the shipped optional-permission manifest and popup to enable then disable it; assert sync and permission removal and blocked reinjection"
   },
   {
+    "id": "storage-locations",
+    "claim": "Enabled sites use Chrome sync storage, Chrome stores granted site permissions, and saved places use local extension storage.",
+    "where": "landing privacy boundary, privacy notice, README Privacy and limits",
+    "test": "npm test -- --grep @claim:storage-locations",
+    "sandbox": "fresh browser profile with a pre-granted fixture host; enable the fixture through the shipped popup, save a reader place, then assert the enabled site is only in sync storage, the saved place is only in local storage, the browser permission is granted, and neither store contains transcript text"
+  },
+  {
     "id": "no-transcript-storage",
     "claim": "The extension does not store transcript text.",
     "where": "landing boundaries, privacy notice, README",

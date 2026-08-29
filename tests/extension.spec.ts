@@ -88,7 +88,7 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
   }
 });
 
-test('@claim:site-disable-removes-access disables a site through the popup and removes its permission', async ({}, testInfo) => {
+test('@claim:site-disable-removes-access @claim:storage-locations enables a site through the popup, keeps each setting in its stated store, and removes access', async ({}, testInfo) => {
   const shippedPath = path.resolve('.output/chrome-mv3');
   const extensionPath = testInfo.outputPath('extension-with-pregranted-fixture');
   await cp(shippedPath, extensionPath, { recursive: true });
@@ -160,6 +160,32 @@ test('@claim:site-disable-removes-access disables a site through the popup and r
     await popup.evaluate(async (id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['content-scripts/content.js'] }), tabId);
     expect(await popup.evaluate(async (id) => chrome.tabs.sendMessage(id, { type: 'OPEN_READER' }), tabId)).toEqual({ ok: true });
     await expect(page.locator('#stream-reader-compass-host')).toHaveCount(1);
+
+    const resumeKey = 'resume:http://127.0.0.1:4173/';
+    const beforeSaving = await popup.evaluate(async () => ({
+      local: await chrome.storage.local.get(null),
+      sync: await chrome.storage.sync.get(null)
+    }));
+    expect(beforeSaving.sync).toEqual({ enabledOrigins: ['http://127.0.0.1:4173'] });
+    expect(beforeSaving.local).toEqual({});
+    expect(beforeSaving.local.enabledOrigins).toBeUndefined();
+
+    await page.locator('#stream-reader-compass-host').evaluate((host) => {
+      host.shadowRoot!.querySelector<HTMLButtonElement>('[data-resume]')!.click();
+    });
+    await expect.poll(() => page.locator('#stream-reader-compass-host').evaluate((host) => host.shadowRoot!.querySelector('.notice')?.textContent))
+      .toContain('Place saved');
+
+    const afterSaving = await popup.evaluate(async () => ({
+      local: await chrome.storage.local.get(null),
+      sync: await chrome.storage.sync.get(null)
+    }));
+    expect(afterSaving.sync).toEqual({ enabledOrigins: ['http://127.0.0.1:4173'] });
+    expect(afterSaving.local.enabledOrigins).toBeUndefined();
+    expect(afterSaving.sync[resumeKey]).toBeUndefined();
+    expect(Object.keys(afterSaving.local)).toEqual([resumeKey]);
+    expect(afterSaving.local[resumeKey]).toMatch(/^message-/);
+    expect(JSON.stringify(afterSaving)).not.toContain('checkout button works with a mouse');
 
     await expect(popup.locator('#enable')).toHaveText('Disable on this site');
     await popup.locator('#enable').click();

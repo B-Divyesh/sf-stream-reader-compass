@@ -1,6 +1,6 @@
 # Copy audit
 
-Checked 2026-08-28 after polish round 4. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
+Checked 2026-08-29 after polish round 5. Counts treat hyphenated terms, URLs, and keyboard chords as one word. No sentence exceeds 22 words. No sentence uses a banned marketing word.
 
 ## Landing page
 
@@ -25,7 +25,7 @@ Checked 2026-08-28 after polish round 4. Counts treat hyphenated terms, URLs, an
 | Download the ZIP, extract it, then load the folder from your browser's extensions page. | 14 | Install instruction. |
 | The extension does not call a model or summarize your words. | 11 | `no-remote-services` |
 | It reads visible message groups only after you enable that site. | 11 | `site-consent` |
-| It stores your enabled sites and saved place. | 8 | Storage disclosure. |
+| It stores your enabled sites and saved place. | 8 | `storage-locations` |
 | It does not store transcript text. | 6 | `no-transcript-storage` |
 | Read streaming chats without losing your place. | 8 | Footer description. |
 
@@ -86,9 +86,9 @@ The route has the direct heading “Install the extension.” Public copy does n
 | Run npm run build, then publish dist/site/ to a static host that supports the included routing configuration. | 16 | Deployment instruction. |
 | After deployment, run npm run verify:live -- https://your-host.example. | 7 | Verification instruction. |
 | It checks routes, metadata, accessibility, mobile layout, demo isolation, links, and reduced motion. | 13 | Verification scope. |
-| Your enabled sites use Chrome sync storage. | 7 | Storage disclosure. |
-| Chrome stores each granted site permission. | 6 | Storage disclosure. |
-| Your saved place uses local extension storage. | 7 | Storage disclosure. |
+| Your enabled sites use Chrome sync storage. | 7 | `storage-locations` |
+| Chrome stores each granted site permission. | 6 | `storage-locations` |
+| Your saved place uses local extension storage. | 7 | `storage-locations` |
 | Transcript text is never stored. | 5 | `no-transcript-storage` |
 | See /privacy for the full notice and /terms for terms. | 9 | Legal links. |
 | Websites change. | 2 | Limitation. |
