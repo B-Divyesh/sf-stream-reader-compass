@@ -89,9 +89,8 @@ test('@claim:site-consent @claim:no-transcript-storage blocks reading until enab
 });
 
 test('@claim:site-disable-removes-access @claim:storage-locations enables a site through the popup, keeps each setting in its stated store, and removes access', async ({}, testInfo) => {
-  const shippedPath = path.resolve('.output/chrome-mv3');
   const extensionPath = testInfo.outputPath('extension-with-pregranted-fixture');
-  await cp(shippedPath, extensionPath, { recursive: true });
+  await execFileAsync('unzip', ['-q', path.resolve('site/public/downloads/stream-reader-compass-chrome.zip'), '-d', extensionPath]);
   const manifestPath = path.join(extensionPath, 'manifest.json');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   manifest.host_permissions = ['http://127.0.0.1:4173/*'];
