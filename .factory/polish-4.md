@@ -43,7 +43,7 @@ The packaged-reader claim test still proves focus retention during streaming, hi
 
 ## Verification evidence
 
-- Clean remote clone: `/tmp/stream-reader-compass-polish4-clean-8HWzBX` at `dafa11a20319a7063f01940dafc514feb0f9cc91`.
+- Clean remote clone: `/tmp/stream-reader-compass-polish4-clean-8HWzBX` at `750a0d1570ee73f0de4a60668e46741a31857bf3`.
 - Every one of the 18 exact commands in `.factory/claims.json`: PASS separately.
 - `npm test`: PASS, 53/53 across desktop and 390 px mobile.
 - `npm run test:unit`: PASS, 5/5. `npm run typecheck`, `npm run lint`, and `npm run build`: PASS.

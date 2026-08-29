@@ -6,7 +6,7 @@ Perfection-loop round 4 is complete. All four findings in `.factory/review-4.md`
 
 Production: <https://stream-reader-compass.sociobot.in>
 
-Product repair commits: `e9b2302cd2653dc0ff9c42d61b46e8eed828ce96` and `dafa11a20319a7063f01940dafc514feb0f9cc91`.
+Product repair commits: `e9b2302cd2653dc0ff9c42d61b46e8eed828ce96` and `dafa11a20319a7063f01940dafc514feb0f9cc91`. Final test and evidence state: `750a0d1570ee73f0de4a60668e46741a31857bf3`.
 
 ## What changed
 
@@ -22,7 +22,7 @@ Product repair commits: `e9b2302cd2653dc0ff9c42d61b46e8eed828ce96` and `dafa11a2
 
 ## Verification
 
-Clean remote clone: `/tmp/stream-reader-compass-polish4-clean-8HWzBX` at `dafa11a20319a7063f01940dafc514feb0f9cc91`.
+Clean remote clone: `/tmp/stream-reader-compass-polish4-clean-8HWzBX` at `750a0d1570ee73f0de4a60668e46741a31857bf3`.
 
 ```sh
 npm ci
